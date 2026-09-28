@@ -106,6 +106,75 @@ function distribucionPorRango(jugadores) {
 // Formato de rating como en el juego: 18450 → "18,450"
 const formatearRating = (n) => n.toLocaleString("en-US");
 
+// ---------- Sitios externos ----------
+// Todos los dominios de afuera que usa la página, en un solo lugar.
+// Un test verifica que la CSP de netlify.toml los permita: si agregás
+// uno acá y te olvidás de la CSP, el test falla antes del deploy.
+const ORIGENES = {
+  // Se consultan con fetch() → van en connect-src
+  api: {
+    discord: "https://discord.com",
+    kick: "https://kick.com",
+  },
+  // Se muestran en un <iframe> → van en frame-src
+  iframes: {
+    kick: "https://player.kick.com",
+    tiktok: "https://www.tiktok.com",
+  },
+};
+
+// ---------- Kick ----------
+
+// Un "slug" de Kick: letras, números, guiones y guiones bajos
+const esSlugKick = (slug) => /^[a-zA-Z0-9_-]{2,25}$/.test(slug);
+
+const urlCanalKick = (slug) => `https://kick.com/${slug}`;
+const urlApiKick = (slug) => `${ORIGENES.api.kick}/api/v2/channels/${slug}`;
+// muted=true: los navegadores solo permiten autoplay sin sonido
+const urlPlayerKick = (slug) => `${ORIGENES.iframes.kick}/${slug}?autoplay=true&muted=true`;
+
+// La API de Kick devuelve muchísimos datos. Nos quedamos con lo que
+// usamos y ponemos valores por defecto si falta algo.
+function resumirCanalKick(datos) {
+  const vivo = datos?.livestream;
+  return {
+    avatar: datos?.user?.profile_pic || "",
+    enVivo: Boolean(vivo?.is_live),
+    titulo: vivo?.session_title || "",
+    categoria: vivo?.categories?.[0]?.name || "",
+    espectadores: vivo?.viewer_count ?? 0,
+    // Kick manda "2026-09-27 19:47:21" en hora UTC: lo pasamos a formato ISO
+    inicio: vivo?.start_time ? Date.parse(vivo.start_time.replace(" ", "T") + "Z") : null,
+  };
+}
+
+// Primero los que están en vivo (el de más espectadores arriba),
+// después los offline y al final los que no se pudieron consultar.
+function ordenarStreamers(lista) {
+  const peso = (s) => (s.estado === "vivo" ? 0 : s.estado === "offline" ? 1 : 2);
+  return [...lista].sort((a, b) => peso(a) - peso(b) || b.espectadores - a.espectadores);
+}
+
+// Hace cuánto empezó el stream: "45 min", "2 h 5 min"
+function duracionDesde(inicio, ahora = Date.now()) {
+  const minutos = Math.max(0, Math.floor((ahora - inicio) / 60000));
+  const horas = Math.floor(minutos / 60);
+  if (horas === 0) return `${minutos} min`;
+  return `${horas} h ${minutos % 60} min`;
+}
+
+// ---------- TikTok ----------
+
+// Saca el ID de un link de TikTok:
+// https://www.tiktok.com/@brosss/video/7412345678901234567?lang=es → "7412345678901234567"
+function idDeTiktok(url) {
+  const coincidencia = /^https:\/\/(?:www\.)?tiktok\.com\/@[\w.-]+\/video\/(\d{15,20})/.exec(url);
+  return coincidencia ? coincidencia[1] : null;
+}
+
+const urlPlayerTiktok = (id) => `${ORIGENES.iframes.tiktok}/player/v1/${id}?autoplay=1&rel=0&description=1&music_info=1`;
+const urlPerfilTiktok = (usuario) => `https://www.tiktok.com/@${usuario}`;
+
 // En el navegador no existe "module": estas líneas solo corren en
 // Node, para que los tests puedan importar las funciones.
 if (typeof module !== "undefined") {
@@ -120,5 +189,14 @@ if (typeof module !== "undefined") {
     filtrarJugadores,
     distribucionPorRango,
     formatearRating,
+    ORIGENES,
+    esSlugKick,
+    urlApiKick,
+    urlPlayerKick,
+    resumirCanalKick,
+    ordenarStreamers,
+    duracionDesde,
+    idDeTiktok,
+    urlPlayerTiktok,
   };
 }

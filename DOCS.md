@@ -306,12 +306,49 @@ Los datos se cargan a mano en `CONFIG.cs2.jugadores`, porque Discord no conoce t
 
 ---
 
-## 8. Producción
+## 8. `js/stream.js`: Stream en vivo (Kick)
+
+Cada 60 segundos se consulta `https://kick.com/api/v2/channels/{canal}` para cada mod. Es una API **no oficial**: es la que usa la web de Kick, no pide clave y permite pedidos desde otras páginas (CORS). La contra es que Kick la puede cambiar sin avisar. Por eso:
+
+- `resumirCanalKick()` (en utilidades.js) se queda solo con los campos que usamos y usa `?.` y `??` para no romperse si falta alguno.
+- Si un canal no responde, igual aparece con el estado "Sin datos" y un link a su canal.
+- `Promise.all` consulta todos los canales **a la vez**. Cada consulta tiene su propio `try/catch`, así que si falla una no falla `Promise.all`.
+
+**El reproductor.** Es un `<iframe>` de `player.kick.com` con `muted=true`, porque los navegadores solo permiten reproducir automáticamente si el video arranca sin sonido. Dos detalles:
+
+- **No se recarga en cada actualización**: si el canal no cambió, el iframe no se toca. Si no, el video se cortaría cada minuto.
+- **Elección manual**: si tocás "Ver" en otro mod, `eleccionManual` evita que la actualización automática te cambie de canal. Si ese mod corta el stream, vuelve al automático (el de más espectadores).
+
+**`aspect-ratio: 16 / 9`** mantiene la proporción del video a cualquier ancho, sin trucos de `padding-top: 56.25%`.
+
+## 9. `js/clips.js`: Clips de TikTok (patrón *facade*)
+
+Cada reproductor de TikTok carga más de 1 MB de scripts. Con 6 clips, la página tardaría muchísimo. Por eso cada clip empieza como un **botón liviano** (la "fachada") con un fondo en los colores de TikTok. Al hacer clic, `replaceWith()` lo cambia por el `<iframe>` real con `autoplay=1`. YouTube y otros sitios grandes usan esta misma técnica.
+
+`idDeTiktok()` saca el número del video del link con una expresión regular. Solo acepta links `https://www.tiktok.com/@usuario/video/NÚMERO`. Los links cortos (`vm.tiktok.com/...`) redirigen a otro lado y no traen el número, así que se descartan. El test de config avisa si cargaste uno.
+
+¿Por qué no hay miniaturas? TikTok tiene una API (oEmbed) que las da, pero no permite pedirla desde el navegador (no manda CORS) y además limita la cantidad de pedidos.
+
+## 10. Dos bugs de CSS que encontraron los tests en el navegador
+
+**1. `hidden` no oculta si el elemento tiene `display`.** El atributo `hidden` funciona porque el navegador aplica `display: none`. Pero cualquier regla nuestra con `display: flex` le gana, y el elemento se sigue viendo. Pasaba con el cartel "Nadie está en vivo", que tapaba el directo. La solución está al principio de `styles.css`:
+
+```css
+[hidden] { display: none !important; }
+```
+
+**2. Una columna `1fr` que se sale de la pantalla.** En CSS Grid, `1fr` tiene un mínimo implícito: el contenido más largo que no se puede cortar. Un título de stream en una sola línea (`white-space: nowrap`) estiraba la columna más allá del celular. La solución es `minmax(0, 1fr)`, que le permite achicarse y deja que el título se corte con "…".
+
+El segundo bug no aparecía como scroll horizontal porque `body` tiene `overflow-x: hidden`, que **esconde** el desborde en vez de evitarlo. Por eso el test ahora mide elemento por elemento si alguno se sale de la pantalla.
+
+---
+
+## 11. Producción
 
 ### `netlify.toml`
 
 - **`command = "npm test"`**: Netlify corre los tests antes de publicar. Si fallan, el sitio queda en la versión anterior.
-- **Content-Security-Policy (CSP)**: una lista blanca de orígenes. El navegador bloquea cualquier script, estilo o conexión que no esté en la lista. Por eso la página **no tiene** `<script>` en línea, `style="..."` ni `onclick="..."`: la CSP los bloquearía, y hay un test que lo verifica.
+- **Content-Security-Policy (CSP)**: una lista blanca de orígenes. Los dominios externos están todos en `ORIGENES` (utilidades.js), y un test verifica que la CSP los permita: `connect-src` para las APIs (Discord, Kick) y `frame-src` para los iframes (Kick, TikTok). El navegador bloquea cualquier script, estilo o conexión que no esté en la lista. Por eso la página **no tiene** `<script>` en línea, `style="..."` ni `onclick="..."`: la CSP los bloquearía, y hay un test que lo verifica.
   - Los estilos que pone JavaScript con `el.style.setProperty()` sí están permitidos: la CSP solo bloquea los que están escritos en el HTML.
 - **Otras cabeceras**:
   - `X-Frame-Options` / `frame-ancestors`: evitan que otro sitio meta tu página en un iframe (*clickjacking*).
@@ -330,7 +367,7 @@ Ver el README. El más interesante es `tests/helpers/navegador-falso.js`: imita 
 
 ---
 
-## 9. Imágenes
+## 12. Imágenes
 
 `img/icono.png` es el ícono del servidor, bajado de `https://cdn.discordapp.com/icons/{id_servidor}/{hash}.png?size=256`. Los íconos de los juegos salen de `https://cdn.discordapp.com/app-icons/{id_app}/{hash}.png`. Están guardados en la carpeta para que la página no dependa de esos links. Si cambiás el ícono del servidor, volvé a bajarlo.
 

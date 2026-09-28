@@ -7,6 +7,7 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 const CONFIG = require("../js/config.js");
+const { esSlugKick, idDeTiktok } = require("../js/utilidades.js");
 
 const RAIZ = path.join(__dirname, "..");
 const esColor = (c) => /^#[0-9a-f]{3}([0-9a-f]{3})?$/i.test(c);
@@ -59,5 +60,22 @@ test("cada jugador de CS2 tiene datos válidos", () => {
     assert.ok(j.faceit === null || (Number.isInteger(j.faceit) && j.faceit >= 1 && j.faceit <= 10), `nivel FACEIT inválido para ${j.nombre}`);
     if (j.steam) assert.match(j.steam, /^https:\/\/steamcommunity\.com\//, `link de Steam inválido para ${j.nombre}`);
     if (j.avatar) assert.match(j.avatar, /^https:\/\//, `el avatar de ${j.nombre} tiene que ser https`);
+  }
+});
+
+test("cada streamer tiene nombre y un canal de Kick válido (sin repetir)", () => {
+  const canales = new Set();
+  for (const s of CONFIG.streamers) {
+    assert.ok(s.nombre && s.rol, "falta nombre o rol");
+    assert.ok(esSlugKick(s.kick), `"${s.kick}" no es un canal válido: poné solo lo que va después de kick.com/`);
+    assert.ok(!canales.has(s.kick.toLowerCase()), `canal repetido: ${s.kick}`);
+    canales.add(s.kick.toLowerCase());
+  }
+});
+
+test("el usuario de TikTok va sin @ y cada clip tiene un link completo", () => {
+  assert.match(CONFIG.tiktok.usuario, /^[\w.]{2,24}$/, "poné el usuario sin @");
+  for (const clip of CONFIG.tiktok.clips) {
+    assert.ok(idDeTiktok(clip.url), `link inválido: ${clip.url}. Usá el link completo (tiktok.com/@usuario/video/...), no el corto`);
   }
 });

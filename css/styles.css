@@ -11,6 +11,7 @@
   --texto-suave: #8fa396;
   --verde: #22e36b;
   --verde-oscuro: #13a84b;
+  --rojo-vivo: #ff4545;
   --brillo: 0 0 12px rgba(34, 227, 107, 0.55), 0 0 32px rgba(34, 227, 107, 0.25);
   --radio: 14px;
   --fuente-titulos: "Rajdhani", sans-serif;
@@ -43,6 +44,10 @@ body {
 }
 
 img { max-width: 100%; display: block; }
+
+/* El atributo hidden tiene que ganarle siempre a cualquier "display"
+   (si no, un .chip con display: inline-flex se ve aunque tenga hidden) */
+[hidden] { display: none !important; }
 a { color: inherit; text-decoration: none; }
 
 .contenedor {
@@ -396,6 +401,249 @@ a { color: inherit; text-decoration: none; }
 .conectados__lista .mas {
   padding: 6px 14px;
   color: var(--texto-suave);
+}
+
+/* =============================================================
+   STREAM
+   ============================================================= */
+.stream {
+  display: grid;
+  /* minmax(0, 1fr) y no 1fr: una columna 1fr no se achica por debajo
+     de su contenido más largo (el título del stream) y se sale de la pantalla */
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 20px;
+  align-items: start;
+}
+.stream__player {
+  position: relative;
+  aspect-ratio: 16 / 9; /* mantiene la proporción del video a cualquier ancho */
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  background: var(--fondo);
+  overflow: hidden;
+}
+.stream__player iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+.stream__offline {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px;
+  text-align: center;
+  color: var(--texto-suave);
+  background: radial-gradient(circle at 50% 40%, rgba(34, 227, 107, 0.08), transparent 60%);
+}
+.stream__offline .icono { color: var(--verde); opacity: 0.7; margin-bottom: 6px; }
+.stream__offline strong { color: var(--texto); font-size: 1.15rem; }
+.stream__info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 14px;
+}
+.stream__info > div { min-width: 0; }
+.stream__info p {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.stream__info span { color: var(--texto-suave); font-size: 0.9rem; }
+.stream__info .btn { flex-shrink: 0; }
+
+.streamers {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.streamer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: var(--tarjeta);
+  border: 1px solid var(--borde);
+  border-radius: 12px;
+}
+.streamer--elegido { border-color: var(--verde); }
+.streamer--offline,
+.streamer--desconocido { opacity: 0.75; }
+.streamer__avatar {
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 2px solid var(--borde);
+  background: var(--fondo);
+  font-family: var(--fuente-titulos);
+  font-weight: 700;
+  overflow: hidden;
+}
+.streamer--vivo .streamer__avatar { border-color: var(--rojo-vivo); }
+.streamer__avatar img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.streamer__info { flex: 1; min-width: 0; }
+.streamer__cabecera {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.streamer__cabecera strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.streamer__estado {
+  flex-shrink: 0;
+  white-space: nowrap;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--texto-suave);
+  background: var(--borde);
+}
+.streamer--vivo .streamer__estado { color: #fff; background: var(--rojo-vivo); }
+.streamer__detalle {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--texto-suave);
+  font-size: 0.85rem;
+}
+.streamer__ver,
+.streamer__canal {
+  flex-shrink: 0;
+  padding: 6px 14px;
+  border: 1px solid var(--verde);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--verde);
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.streamer__ver:hover,
+.streamer__canal:hover { background: rgba(34, 227, 107, 0.1); }
+.streamer--elegido .streamer__ver { background: var(--verde); color: #04130a; }
+.streamer__canal { border-color: var(--borde); color: var(--texto-suave); }
+
+/* Avisos de "en vivo" en el menú y el hero */
+.punto--rojo {
+  background: var(--rojo-vivo);
+  box-shadow: 0 0 8px var(--rojo-vivo);
+}
+.chip--vivo { border-color: var(--rojo-vivo); color: var(--texto); }
+.chip--vivo:hover { background: rgba(255, 69, 69, 0.1); }
+.nav__vivo {
+  margin-left: 4px;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: var(--rojo-vivo);
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  vertical-align: 2px;
+}
+
+/* =============================================================
+   CLIPS
+   ============================================================= */
+.clips {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
+}
+.clip {
+  aspect-ratio: 9 / 16; /* formato vertical de TikTok */
+  border-radius: var(--radio);
+  overflow: hidden;
+  border: 1px solid var(--borde);
+  background: var(--tarjeta);
+}
+.clip iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+.clip__fachada {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 20px;
+  border: 0;
+  background:
+    radial-gradient(circle at 30% 20%, rgba(37, 244, 238, 0.18), transparent 50%),
+    radial-gradient(circle at 70% 80%, rgba(254, 44, 85, 0.18), transparent 50%),
+    var(--tarjeta);
+  color: var(--texto);
+  font: inherit;
+  cursor: pointer;
+}
+.clip__marca {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--texto-suave);
+}
+.clip__play {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--verde);
+  box-shadow: var(--brillo);
+  transition: transform 0.2s;
+}
+/* Triángulo de "play" hecho con bordes */
+.clip__play::before {
+  content: "";
+  margin-left: 5px;
+  border-style: solid;
+  border-width: 11px 0 11px 18px;
+  border-color: transparent transparent transparent #04130a;
+}
+.clip__fachada:hover .clip__play { transform: scale(1.1); }
+.clip__titulo {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 16px;
+  font-weight: 600;
+  text-align: left;
+}
+.clips__mas {
+  display: flex;
+  justify-content: center;
+  margin-top: 32px;
 }
 
 /* =============================================================
@@ -1087,9 +1335,10 @@ a { color: inherit; text-decoration: none; }
 }
 
 /* =============================================================
-   RESPONSIVE (celular)
+   RESPONSIVE
    ============================================================= */
-@media (max-width: 760px) {
+/* Menú hamburguesa: con 8 links el menú no entra en tablets */
+@media (max-width: 1080px) {
   .nav__toggle { display: flex; }
 
   .nav__links {
@@ -1111,7 +1360,12 @@ a { color: inherit; text-decoration: none; }
   .nav.abierto .nav__toggle span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
   .nav.abierto .nav__toggle span:nth-child(2) { opacity: 0; }
   .nav.abierto .nav__toggle span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+}
 
+/* =============================================================
+   RESPONSIVE (celular)
+   ============================================================= */
+@media (max-width: 760px) {
   .seccion { padding: 64px 0; }
   .stats { grid-template-columns: repeat(2, 1fr); gap: 12px; }
   .stat { padding: 22px 10px; }
@@ -1125,6 +1379,9 @@ a { color: inherit; text-decoration: none; }
   .podio { gap: 8px; }
   .podio__puesto { padding: 12px 4px; }
   .col-faceit, .col-steam { display: none; }
+  .stream__info { flex-direction: column; align-items: stretch; }
+  .clips { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .clip__play { width: 48px; height: 48px; }
   .filtros label:not(.buscador), .filtros select { width: 100%; }
   .ranking th, .ranking td { padding: 10px 12px; }
   .invitacion .btn { width: 100%; justify-content: center; }
@@ -1132,6 +1389,7 @@ a { color: inherit; text-decoration: none; }
 
 @media (max-width: 900px) {
   .rangos-grid { grid-template-columns: 1fr; }
+  .stream { grid-template-columns: minmax(0, 1fr); }
 }
 
 /* Respeta a quien desactivó las animaciones en su sistema */

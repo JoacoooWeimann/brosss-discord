@@ -1,0 +1,11 @@
+{
+  "slug": "joacooo",
+  "user": { "username": "Joacooo", "profile_pic": "https://files.kick.com/images/user/1/profile_image/avatar.webp" },
+  "livestream": {
+    "is_live": true,
+    "session_title": "Premier con los pibes <script>alert(1)</script>",
+    "viewer_count": 1234,
+    "start_time": "2026-09-27 19:47:21",
+    "categories": [{ "name": "Counter-Strike 2" }]
+  }
+}

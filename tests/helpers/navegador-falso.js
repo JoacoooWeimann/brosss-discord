@@ -58,9 +58,27 @@ class ElementoFalso {
     this.children = [];
   }
   append(...hijos) {
+    hijos.forEach((h) => (h.padre = this));
     this.children.push(...hijos);
   }
-  remove() {}
+  remove() {
+    if (this.padre) this.padre.children = this.padre.children.filter((h) => h !== this);
+  }
+  replaceWith(nuevo) {
+    const hermanos = this.padre.children;
+    hermanos[hermanos.indexOf(this)] = nuevo;
+    nuevo.padre = this.padre;
+  }
+  scrollIntoView() {}
+  // Busca el primer descendiente con esa etiqueta ("iframe")
+  querySelector(etiqueta) {
+    for (const h of this.children) {
+      if (h.tagName === etiqueta.toUpperCase()) return h;
+      const adentro = h.querySelector?.(etiqueta);
+      if (adentro) return adentro;
+    }
+    return null;
+  }
   setAttribute(k, v) {
     this.atributos[k] = String(v);
   }
@@ -156,12 +174,16 @@ function crearNavegador({ fetch, almacenamiento = {} } = {}) {
 // Espera a que terminen las promesas pendientes (los fetch falsos)
 const esperar = () => new Promise((r) => setImmediate(r));
 
-// fetch falso que responde con un archivo de tests/fixtures
-function fetchCon(fixture) {
-  const datos = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "fixtures", fixture), "utf8"));
+// fetch falso que responde con archivos de tests/fixtures.
+// Recibe un objeto { "parte de la url": "archivo.json" }. Si ninguna
+// ruta coincide, responde 404. Un string es un atajo para la invitación.
+function fetchCon(rutas) {
+  if (typeof rutas === "string") rutas = { "/invites/": rutas };
+  const leer = (archivo) => JSON.parse(fs.readFileSync(path.join(__dirname, "..", "fixtures", archivo), "utf8"));
   return async (url) => {
-    if (url.includes("/invites/")) return { ok: true, status: 200, json: async () => datos };
-    return { ok: false, status: 403, json: async () => ({}) };
+    const ruta = Object.keys(rutas).find((r) => url.includes(r));
+    if (ruta) return { ok: true, status: 200, json: async () => leer(rutas[ruta]) };
+    return { ok: false, status: 404, json: async () => ({}) };
   };
 }
 

@@ -20,7 +20,15 @@ test("todos los archivos JS compilan sin errores de sintaxis", () => {
 });
 
 test("index.html carga los scripts en el orden correcto", () => {
-  assert.deepEqual(SCRIPTS, ["js/config.js", "js/utilidades.js", "js/main.js", "js/rangos.js", "js/efectos.js"]);
+  assert.deepEqual(SCRIPTS, [
+    "js/config.js",
+    "js/utilidades.js",
+    "js/main.js",
+    "js/rangos.js",
+    "js/stream.js",
+    "js/clips.js",
+    "js/efectos.js",
+  ]);
 });
 
 test("cada id que usa el JavaScript existe en index.html", () => {
@@ -82,15 +90,33 @@ test("no hay estilos ni scripts en línea (los bloquearía la CSP)", () => {
 });
 
 test("netlify.toml define la CSP y permite todo lo que usa la página", () => {
-  const toml = leer("netlify.toml");
-  const csp = toml.match(/Content-Security-Policy = "([^"]+)"/)[1];
-  assert.match(csp, /connect-src https:\/\/discord\.com/);
-  assert.match(csp, /font-src https:\/\/fonts\.gstatic\.com/);
-  assert.match(csp, /style-src 'self' https:\/\/fonts\.googleapis\.com/);
-  // Toda URL externa del JS tiene que estar permitida en connect-src
-  for (const archivo of SCRIPTS) {
-    for (const [, host] of leer(archivo).matchAll(/fetch\(`?https:\/\/([^/`"]+)/g)) {
-      assert.ok(csp.includes(host), `${archivo} hace fetch a ${host} pero la CSP no lo permite`);
-    }
+  const { ORIGENES } = require("../js/utilidades.js");
+  const csp = leer("netlify.toml").match(/Content-Security-Policy = "([^"]+)"/)[1];
+  // Arma un objeto { "connect-src": "https://... https://...", ... }
+  const directivas = Object.fromEntries(
+    csp.split(";").map((d) => d.trim().split(/\s+/)).map(([nombre, ...valores]) => [nombre, valores])
+  );
+
+  assert.ok(directivas["font-src"].includes("https://fonts.gstatic.com"));
+  assert.ok(directivas["style-src"].includes("https://fonts.googleapis.com"));
+  for (const origen of Object.values(ORIGENES.api)) {
+    assert.ok(directivas["connect-src"].includes(origen), `connect-src no permite ${origen}`);
   }
+  for (const origen of Object.values(ORIGENES.iframes)) {
+    assert.ok(directivas["frame-src"].includes(origen), `frame-src no permite ${origen}`);
+  }
+});
+
+test("los scripts no usan dominios externos escritos a mano (van en ORIGENES)", () => {
+  // Para que la CSP y el código no se desincronicen, las URLs de APIs
+  // e iframes se arman siempre desde ORIGENES en utilidades.js
+  for (const archivo of SCRIPTS.filter((a) => a !== "js/utilidades.js" && a !== "js/config.js")) {
+    const codigo = leer(archivo);
+    assert.doesNotMatch(codigo, /https:\/\/(discord\.com|kick\.com|player\.kick\.com|www\.tiktok\.com)\/(api|player)/, archivo);
+  }
+});
+
+test("el CSS respeta el atributo hidden aunque el elemento tenga display", () => {
+  // Sin esta regla, JS pone hidden = true pero el elemento se sigue viendo
+  assert.match(leer("css/styles.css"), /\[hidden\]\s*\{\s*display:\s*none\s*!important;?\s*\}/);
 });

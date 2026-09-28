@@ -86,7 +86,7 @@ function ponerLinkInvitacion(url) {
 // API de invitaciones: da total de miembros, conectados y boosts.
 // Es pública, no necesita token.
 async function pedirInvitacion() {
-  const url = `https://discord.com/api/v10/invites/${CONFIG.codigoInvitacion}?with_counts=true`;
+  const url = `${ORIGENES.api.discord}/api/v10/invites/${CONFIG.codigoInvitacion}?with_counts=true`;
   const res = await fetch(url);
   if (!res.ok) throw new Error("Invitación inválida o vencida (" + res.status + ")");
   return res.json();
@@ -95,7 +95,7 @@ async function pedirInvitacion() {
 // API del widget: da la lista de conectados.
 // Solo funciona si el widget está habilitado en el servidor.
 async function pedirWidget() {
-  const url = `https://discord.com/api/guilds/${CONFIG.idServidor}/widget.json`;
+  const url = `${ORIGENES.api.discord}/api/guilds/${CONFIG.idServidor}/widget.json`;
   const res = await fetch(url);
   if (!res.ok) throw new Error("Widget desactivado (" + res.status + ")");
   return res.json();

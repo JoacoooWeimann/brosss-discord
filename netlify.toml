@@ -18,9 +18,10 @@
     #  - script-src 'self'        → solo nuestros archivos JS
     #  - style-src / font-src     → nuestro CSS + Google Fonts
     #  - img-src https:           → imágenes de cualquier sitio https (avatares de Discord/Steam)
-    #  - connect-src              → fetch() solo a la API de Discord
+    #  - connect-src              → fetch() solo a las APIs de Discord y Kick
+    #  - frame-src                → iframes solo del reproductor de Kick y de TikTok
     #  - frame-ancestors 'none'   → nadie puede meter la página en un <iframe>
-    Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https: data:; connect-src https://discord.com; frame-ancestors 'none'; base-uri 'self'; form-action 'none'; object-src 'none'"
+    Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https: data:; connect-src https://discord.com https://kick.com; frame-src https://player.kick.com https://www.tiktok.com; frame-ancestors 'none'; base-uri 'self'; form-action 'none'; object-src 'none'"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
     Permissions-Policy = "camera=(), microphone=(), geolocation=()"

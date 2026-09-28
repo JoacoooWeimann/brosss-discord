@@ -69,6 +69,27 @@ const CONFIG = {
     { nombre: "Tomi", rol: "Moderador", color: "#5c9dff", avatar: "" },
   ],
 
+  // ---------- Stream (Kick) ----------
+  // Canales de Kick de los mods. "kick" es lo que va después de
+  // kick.com/ en el link del canal. Ej: kick.com/joacooo → "joacooo".
+  // Cada minuto se consulta quién está en vivo. Si hay alguien, se ve
+  // el directo en la página (el que tenga más espectadores primero).
+  // Mientras la lista esté vacía, la sección Stream no se muestra.
+  streamers: [
+    // { nombre: "Joacooo", rol: "Fundador", kick: "nombre-del-canal" },
+  ],
+
+  // ---------- Clips de TikTok ----------
+  // Pegá el link COMPLETO de cada video (abrilo en la compu y copiá la
+  // URL). Los links cortos tipo vm.tiktok.com no sirven.
+  // "titulo" es opcional: es el texto que se ve antes de reproducir.
+  tiktok: {
+    usuario: "brosss",
+    clips: [
+      // { url: "https://www.tiktok.com/@brosss/video/7412345678901234567", titulo: "Ace con la Deagle" },
+    ],
+  },
+
   // ---------- Rangos de CS2 ----------
   // Se cargan a mano: Discord no sabe tu rango de CS2.
   //  - premier: CS Rating (0 a ~35000). Define el color del rango.
