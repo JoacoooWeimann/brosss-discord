@@ -15,7 +15,7 @@ const CONFIG = {
   // Código de invitación: lo que va después de "discord.gg/".
   // Ej: si tu link es https://discord.gg/abc123 → "abc123".
   // Tiene que ser una invitación que NO expire.
-  codigoInvitacion: "gSuRgnK5V",
+  codigoInvitacion: "th8xGPTBDX",
 
   // ID del servidor (opcional). Sirve para mostrar la lista de
   // conectados. Requiere activar el widget:
