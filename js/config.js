@@ -78,6 +78,7 @@ const CONFIG = {
   streamers: [
     { nombre: "Joacooo", rol: "Fundador", kick: "joacooow" },
     { nombre: "iBranDou", rol: "Moderador", kick: "ibrandou" },
+    { nombre: "Kyo", rol: "Moderador", kick: "ikyooo" },
   ],
 
   // ---------- Clips de TikTok ----------
