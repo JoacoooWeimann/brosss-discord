@@ -12,7 +12,7 @@ Hecha con **HTML, CSS y JavaScript puro**, sin frameworks ni dependencias.
 - Lista de usuarios conectados (si el widget del servidor está activo)
 - **Stream en vivo (Kick)**: detecta qué mods están transmitiendo y muestra el directo incrustado, con aviso "EN VIVO" en el menú
 - **Clips de TikTok**: se cargan al hacer clic para que la página no pese
-- **Rangos CS2**: resumen, podio, gráfico de distribución por rango y tabla con buscador y filtro
+- **Rangos CS2 automáticos**: con solo el link de Steam de cada jugador, trae su avatar, su CS Rating de Premier (vía Leetify) y su nivel de FACEIT. Resumen, podio, gráfico de distribución y tabla con buscador y filtro
 - Reglas, staff, rangos y FAQ generados desde un único archivo de configuración
 - Diseño oscuro con acentos verde neón, responsive con menú hamburguesa
 - Animaciones al hacer scroll con `IntersectionObserver`
@@ -31,8 +31,9 @@ Hecha con **HTML, CSS y JavaScript puro**, sin frameworks ni dependencias.
 2. Poné el código de tu invitación en `codigoInvitacion` (lo que va después de `discord.gg/`). Usá una invitación **que no expire**.
 3. *(Opcional)* Poné el ID del servidor en `idServidor` y activá el widget en Discord: **Ajustes del servidor → Widget → Habilitar widget del servidor**. Así aparece la lista de conectados.
 4. Cargá los canales de Kick de los mods en `streamers` (solo el nombre que va después de `kick.com/`) y los links de TikTok en `tiktok.clips` (el link completo, no el corto `vm.tiktok.com`). Mientras `streamers` esté vacío, la sección Stream no se muestra.
-5. Editá las reglas, el staff, la FAQ y los **rangos de CS2** (`cs2.jugadores`) en ese mismo archivo. Cuando cargues los rangos reales, poné `cs2.datosDeEjemplo: false`.
-6. Abrí `index.html` en el navegador, o usá la extensión **Live Server** de VS Code.
+5. Editá las reglas, el staff y la FAQ en ese mismo archivo.
+6. En `cs2.jugadores` cargá el **nombre y el link de Steam** de cada jugador. Los rangos se buscan solos (ver [Rangos de CS2](#rangos-de-cs2)).
+7. Abrí `index.html` en el navegador, o usá la extensión **Live Server** de VS Code. Sin Netlify, la función de rangos no corre y la tabla usa los valores cargados a mano.
 
 Si no cargás ningún código, la página muestra **datos de ejemplo**.
 
@@ -49,6 +50,7 @@ Brosss/
 ├── js/stream.js        → sección Stream: quién está en vivo en Kick y el reproductor
 ├── js/clips.js         → sección Clips: videos de TikTok
 ├── js/efectos.js       → efectos visuales: partículas, toast, scroll, secreto
+├── netlify/functions/rangos.mjs → /api/rangos: junta Steam, Leetify y FACEIT (corre en Netlify)
 ├── tests/              → tests automáticos (npm test)
 ├── 404.html            → página de error
 ├── netlify.toml        → cabeceras de seguridad, caché y configuración de deploy
@@ -64,19 +66,41 @@ Brosss/
 npm test
 ```
 
-No hace falta `npm install`: los tests usan `node:test`, que viene con Node (versión 22 o más nueva). Son 60 tests que verifican:
+No hace falta `npm install`: los tests usan `node:test`, que viene con Node (versión 22 o más nueva). Son 73 tests que verifican:
 
 - **Funciones** (`utilidades.test.js`): rangos, fechas, filtros, orden.
 - **Configuración** (`config.test.js`): que los datos de `config.js` estén bien cargados (ratings válidos, links https, sin nombres repetidos…).
 - **HTML** (`html.test.js`): que cada id que usa el JS exista, que no falten imágenes, que la CSP permita todo lo que la página usa.
 - **Stream y clips** (`stream-clips.test.js`): mod en vivo, todos offline, Kick caído, que el reproductor no se recargue cada minuto, clips que cargan al hacer clic.
-- **Integración** (`integracion.test.js`): ejecuta los scripts en un navegador simulado con una respuesta guardada de Discord y prueba los casos con y sin internet, caché roto, nombres con HTML, buscador y filtros.
+- **Función de rangos** (`funcion-rangos.test.js`): con respuestas falsas de Steam, Leetify y FACEIT prueba cómo se combinan los datos, qué pasa si una API se cae y que la clave de FACEIT nunca vaya en la URL.
+- **Integración** (`integracion.test.js`): ejecuta los scripts en un navegador simulado con respuestas guardadas de Discord y de `/api/rangos`, y prueba los casos con y sin internet, caché roto, nombres con HTML, jugadores sin rating, buscador y filtros.
 
 Netlify corre los tests en cada deploy: **si alguno falla, no se publica**.
 
 ## Deploy en Netlify
 
-Conectá el repositorio de GitHub en Netlify ("Add new site → Import an existing project"). Netlify lee `netlify.toml`, corre los tests y publica. No hay que configurar nada más.
+Conectá el repositorio de GitHub en Netlify ("Add new site → Import an existing project"). Netlify lee `netlify.toml`, corre los tests y publica la página y la función `/api/rangos`.
+
+## Rangos de CS2
+
+La función `netlify/functions/rangos.mjs` corre en Netlify y arma el ranking a partir de `CONFIG.cs2.jugadores`. La respuesta queda 30 minutos en la caché de Netlify.
+
+| Dato | De dónde sale | Qué hace falta |
+|---|---|---|
+| Avatar | Perfil de Steam | Que el perfil sea público |
+| CS Rating (Premier) | [Leetify](https://leetify.com) | Que el jugador haya entrado **una vez** a leetify.com con su Steam y tenga partidas de Premier |
+| Nivel y ELO de FACEIT | API de FACEIT (o Leetify si no hay clave) | Que tenga FACEIT vinculado a ese Steam |
+
+Valve no publica el CS Rating en la API de Steam: por eso se usa Leetify. Si a alguien no le aparece, podés cargarlo a mano en `config.js` (`premier: 15300`), y se usa hasta que Leetify lo tenga.
+
+**Clave de FACEIT (recomendada):**
+
+1. Entrá a [developers.faceit.com](https://developers.faceit.com) con tu cuenta de FACEIT.
+2. Creá una app y, dentro de ella, una **API key** de tipo **Server side**.
+3. En Netlify: **Site configuration → Environment variables → Add a variable**, con nombre `FACEIT_API_KEY` y la clave como valor.
+4. Volvé a hacer el deploy.
+
+La clave queda solo en Netlify: nunca va en el código ni llega al navegador. `LEETIFY_API_KEY` (opcional) funciona igual y sube el límite de pedidos a Leetify.
 
 > Si arrastrás la carpeta a app.netlify.com/drop, los tests no corren; corrélos antes con `npm test`.
 

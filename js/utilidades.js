@@ -76,10 +76,17 @@ function colorFaceit(nivel) {
   return "#eeeeee";
 }
 
+// premier puede ser null (no lo sabemos): esos jugadores no tienen rango
+const tienePremier = (j) => Number.isFinite(j.premier);
+
 // Ordena de mayor a menor rating sin modificar el array original
 // ([...lista] hace una copia; sort() modifica el array que recibe).
+// Los que no tienen rating van al final, ordenados por FACEIT.
 function ordenarPorRating(jugadores) {
-  return [...jugadores].sort((a, b) => b.premier - a.premier);
+  const rating = (j) => (tienePremier(j) ? j.premier : -1);
+  return [...jugadores].sort(
+    (a, b) => rating(b) - rating(a) || (b.faceitElo ?? 0) - (a.faceitElo ?? 0) || (b.faceit ?? 0) - (a.faceit ?? 0)
+  );
 }
 
 // Filtra por texto (nombre) y por rango. Sin distinguir mayúsculas
@@ -91,7 +98,8 @@ function normalizar(texto) {
 function filtrarJugadores(jugadores, { texto = "", rango = "" } = {}) {
   const buscado = normalizar(texto.trim());
   return jugadores.filter(
-    (j) => normalizar(j.nombre).includes(buscado) && (!rango || rangoPremier(j.premier).nombre === rango)
+    (j) =>
+      normalizar(j.nombre).includes(buscado) && (!rango || (tienePremier(j) && rangoPremier(j.premier).nombre === rango))
   );
 }
 
@@ -99,12 +107,28 @@ function filtrarJugadores(jugadores, { texto = "", rango = "" } = {}) {
 function distribucionPorRango(jugadores) {
   return RANGOS_PREMIER.map((r) => ({
     ...r,
-    cantidad: jugadores.filter((j) => rangoPremier(j.premier) === r).length,
+    cantidad: jugadores.filter((j) => tienePremier(j) && rangoPremier(j.premier) === r).length,
   }));
 }
 
 // Formato de rating como en el juego: 18450 → "18,450"
 const formatearRating = (n) => n.toLocaleString("en-US");
+
+// ---------- Steam ----------
+
+// Entiende los dos formatos de link de perfil:
+//   https://steamcommunity.com/profiles/76561198860991191 → { tipo: "profiles", valor: "7656..." }
+//   https://steamcommunity.com/id/DJLucheo               → { tipo: "id", valor: "DJLucheo" }
+// Cualquier otra cosa devuelve null.
+function parsearLinkSteam(url) {
+  const m = /^https:\/\/steamcommunity\.com\/(?:profiles\/(7656\d{13})|id\/([\w-]{2,32}))\/?$/.exec(String(url).trim());
+  if (!m) return null;
+  return m[1] ? { tipo: "profiles", valor: m[1] } : { tipo: "id", valor: m[2] };
+}
+
+// Ruta de nuestra Netlify Function (netlify/functions/rangos.mjs), que
+// junta Steam, Leetify y FACEIT. Es del mismo sitio: va como 'self' en la CSP.
+const URL_API_RANGOS = "/api/rangos";
 
 // ---------- Sitios externos ----------
 // Todos los dominios de afuera que usa la página, en un solo lugar.
@@ -185,10 +209,13 @@ if (typeof module !== "undefined") {
     RANGOS_PREMIER,
     rangoPremier,
     colorFaceit,
+    tienePremier,
     ordenarPorRating,
     filtrarJugadores,
     distribucionPorRango,
     formatearRating,
+    parsearLinkSteam,
+    URL_API_RANGOS,
     ORIGENES,
     esSlugKick,
     urlApiKick,

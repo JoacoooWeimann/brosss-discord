@@ -82,12 +82,99 @@ test("si falla una actualización, se mantienen los datos en vivo anteriores", a
   assert.match(nav.elemento("stats-fuente").textContent, /^En vivo/);
 });
 
-test("un nombre con HTML se muestra como texto (no se ejecuta)", async () => {
-  const nav = crearNavegador();
-  nav.cargar("js/config.js");
-  nav.evaluar("CONFIG").cs2.jugadores = [{ nombre: "<img src=x onerror=alert(1)>", premier: 1000, faceit: null, steam: "javascript:alert(1)", avatar: "" }];
-  nav.cargar("js/utilidades.js", "js/main.js", "js/rangos.js");
+// ---------- Rangos ----------
 
+// La celda "Jugador" tiene el avatar (con la inicial) y el nombre
+const nombreDe = (fila) => fila.children[1].children[0].children[1].textContent;
+const filaDe = (filas, nombre) => filas.find((f) => nombreDe(f) === nombre);
+
+// Abre la página con la API de rangos respondiendo (o no) y, si se pasa,
+// reemplaza la lista de jugadores de config.js
+async function abrirRangos({ rutas = { "/api/rangos": "rangos-api.json" }, jugadores } = {}) {
+  const nav = crearNavegador({ fetch: fetchCon(rutas) });
+  nav.cargar("js/config.js");
+  if (jugadores) {
+    nav.contexto.__jugadores = jugadores;
+    nav.evaluar("CONFIG.cs2.jugadores = __jugadores");
+  }
+  nav.cargar("js/utilidades.js", "js/main.js", "js/rangos.js");
+  await esperar();
+  return nav;
+}
+
+test("con la API de rangos, arma resumen, podio, gráfico y tabla", async () => {
+  const nav = await abrirRangos();
+
+  assert.equal(nav.elemento("rangos-total").textContent, "6");
+  // El promedio y el mejor solo cuentan a los que tienen rating
+  assert.equal(nav.elemento("rangos-promedio").textContent, "18,223");
+  assert.equal(nav.elemento("rangos-mejor").textContent, "30,250");
+  assert.equal(nav.elemento("rangos-mejor-nombre").textContent, "Santi");
+  assert.equal(nav.elemento("rangos-podio").children.length, 3);
+  assert.equal(nav.elemento("rangos-podio-vacio").hidden, true);
+  assert.equal(nav.elemento("rangos-aviso").hidden, true, "con datos en vivo no hay aviso");
+  assert.match(nav.elemento("rangos-actualizado").textContent, /^actualizado hace/);
+  assert.equal(nav.elemento("rangos-leetify").hidden, false, "hay jugadores sin rating: se ve la nota de Leetify");
+
+  // El gráfico va de mayor a menor rango y suma solo a los que tienen rating
+  const barras = nav.elemento("rangos-distribucion").children;
+  assert.equal(barras.length, 7);
+  assert.match(barras[0].getAttribute("aria-label"), /^Dorado/);
+  const total = barras.reduce((s, b) => s + Number(b.children[1].children[1].textContent), 0);
+  assert.equal(total, 4);
+
+  // Tabla: los sin rating al final (Kyo antes que Lucho por tener FACEIT)
+  const filas = nav.elemento("rangos-tabla").children;
+  assert.deepEqual(filas.map(nombreDe), ["Santi", "Gonza", "Joaco", "Pipe", "Kyo", "Lucho"]);
+  assert.equal(filas[4].children[2].textContent, "—");
+  assert.equal(filas[4].children[3].children[0].title, "FACEIT nivel 7 · 1.629 ELO");
+});
+
+test("el nivel de FACEIT es un link solo si la URL es de faceit.com", async () => {
+  const filas = (await abrirRangos()).elemento("rangos-tabla").children;
+  const faceitDe = (nombre) => filaDe(filas, nombre).children[3].children[0];
+  assert.equal(faceitDe("Joaco").tagName, "A");
+  assert.equal(faceitDe("Joaco").href, "https://www.faceit.com/es/players/joaco");
+  assert.equal(faceitDe("Gonza").tagName, "SPAN");
+});
+
+test("un avatar que no es https no se carga", async () => {
+  const filas = (await abrirRangos()).elemento("rangos-tabla").children;
+  const avatarDe = (nombre) => filaDe(filas, nombre).children[1].children[0].children[0];
+  assert.equal(avatarDe("Joaco").children[0].tagName, "IMG");
+  assert.equal(avatarDe("Pipe").children.length, 0, "javascript: no se usa como src");
+});
+
+test("si la API de rangos no responde, usa los valores de config.js y lo avisa", async () => {
+  const nav = await abrirRangos({
+    rutas: {},
+    jugadores: [
+      { nombre: "A", steam: "https://steamcommunity.com/id/a", premier: 12000, faceit: 5 },
+      { nombre: "B", steam: "https://steamcommunity.com/id/b" },
+    ],
+  });
+  assert.equal(nav.elemento("rangos-aviso").hidden, false);
+  assert.equal(nav.elemento("rangos-actualizado").textContent, "datos cargados a mano");
+  assert.equal(nav.elemento("rangos-mejor").textContent, "12,000");
+  assert.equal(nav.elemento("rangos-tabla").children.length, 2);
+});
+
+test("si nadie tiene rating, el podio muestra un mensaje y el resumen queda en —", async () => {
+  const nav = await abrirRangos({
+    rutas: {},
+    jugadores: [{ nombre: "A", steam: "https://steamcommunity.com/id/a" }],
+  });
+  assert.equal(nav.elemento("rangos-podio").hidden, true);
+  assert.equal(nav.elemento("rangos-podio-vacio").hidden, false);
+  assert.equal(nav.elemento("rangos-mejor").textContent, "—");
+  assert.equal(nav.elemento("rangos-tabla").children.length, 1);
+});
+
+test("un nombre con HTML se muestra como texto (no se ejecuta)", async () => {
+  const nav = await abrirRangos({
+    rutas: {},
+    jugadores: [{ nombre: "<img src=x onerror=alert(1)>", premier: 1000, steam: "javascript:alert(1)" }],
+  });
   const fila = nav.elemento("rangos-tabla").children[0];
   assert.match(fila.textContent, /<img src=x/, "el nombre tiene que aparecer literal");
   // El link "javascript:" no se convierte en <a>
@@ -95,30 +182,8 @@ test("un nombre con HTML se muestra como texto (no se ejecuta)", async () => {
   assert.equal(celdaSteam.children[0].tagName, "SPAN");
 });
 
-test("la sección de rangos arma resumen, podio, gráfico y tabla", () => {
-  const nav = crearNavegador();
-  nav.cargar(...SCRIPTS);
-  const { jugadores } = nav.evaluar("CONFIG").cs2;
-
-  assert.equal(nav.elemento("rangos-total").textContent, String(jugadores.length));
-  assert.equal(nav.elemento("rangos-mejor").textContent, "30,250");
-  assert.equal(nav.elemento("rangos-mejor-nombre").textContent, "Santi");
-  assert.equal(nav.elemento("rangos-podio").children.length, 3);
-  assert.equal(nav.elemento("rangos-distribucion").children.length, 7);
-  assert.equal(nav.elemento("rangos-tabla").children.length, jugadores.length);
-  assert.equal(nav.elemento("rangos-aviso").hidden, false, "con datos de ejemplo se ve el aviso");
-  assert.equal(nav.elemento("rangos-actualizado").textContent, "26 de septiembre de 2026");
-
-  // El gráfico va de mayor a menor rango y suma el total de jugadores
-  const barras = nav.elemento("rangos-distribucion").children;
-  assert.match(barras[0].getAttribute("aria-label"), /^Dorado/);
-  const total = barras.reduce((s, b) => s + Number(b.children[1].children[1].textContent), 0);
-  assert.equal(total, jugadores.length);
-});
-
-test("el buscador y el filtro de rango actualizan la tabla", () => {
-  const nav = crearNavegador();
-  nav.cargar(...SCRIPTS);
+test("el buscador y el filtro de rango actualizan la tabla", async () => {
+  const nav = await abrirRangos();
   const tabla = nav.elemento("rangos-tabla");
 
   nav.elemento("rangos-buscar").value = "santi";
@@ -130,7 +195,7 @@ test("el buscador y el filtro de rango actualizan la tabla", () => {
   nav.elemento("rangos-buscar").value = "";
   nav.elemento("rangos-filtro").value = "Violeta";
   nav.elemento("rangos-filtro").disparar("change");
-  assert.ok(tabla.children.length > 0);
+  assert.equal(tabla.children.length, 2);
   assert.equal(nav.elemento("rangos-vacio").hidden, true);
 
   nav.elemento("rangos-buscar").value = "zzz";
@@ -139,11 +204,8 @@ test("el buscador y el filtro de rango actualizan la tabla", () => {
   assert.equal(nav.elemento("rangos-vacio").hidden, false, "muestra el mensaje de sin resultados");
 });
 
-test("sin jugadores cargados, la sección muestra un mensaje en vez de romperse", () => {
-  const nav = crearNavegador();
-  nav.cargar("js/config.js");
-  nav.evaluar("CONFIG").cs2.jugadores = [];
-  assert.doesNotThrow(() => nav.cargar("js/utilidades.js", "js/main.js", "js/rangos.js"));
+test("sin jugadores cargados, la sección muestra un mensaje en vez de romperse", async () => {
+  const nav = await abrirRangos({ rutas: {}, jugadores: [] });
   assert.equal(nav.elemento("rangos-contenido").hidden, true);
   assert.equal(nav.elemento("rangos-vacio-total").hidden, false);
 });

@@ -94,6 +94,40 @@ test("distribucionPorRango cuenta a todos los jugadores una sola vez", () => {
   assert.equal(dist.find((d) => d.nombre === "Violeta").cantidad, 2);
 });
 
+// Sin CS Rating (no está en Leetify): premier null
+const CON_SIN_RATING = [
+  ...JUGADORES,
+  { nombre: "Kyo", premier: null, faceit: 7, faceitElo: 1629 },
+  { nombre: "Lucho", premier: null, faceit: null },
+];
+
+test("ordenarPorRating deja al final a los que no tienen rating, ordenados por FACEIT", () => {
+  assert.deepEqual(
+    u.ordenarPorRating([CON_SIN_RATING[5], ...CON_SIN_RATING.slice(0, 5)]).map((j) => j.nombre),
+    ["Santi", "Gonza", "Joacó", "Pipe", "Kyo", "Lucho"]
+  );
+});
+
+test("los jugadores sin rating no entran en ningún rango", () => {
+  assert.equal(u.filtrarJugadores(CON_SIN_RATING, { rango: "Gris" }).map((j) => j.nombre).join(), "Pipe");
+  assert.equal(u.filtrarJugadores(CON_SIN_RATING, { texto: "kyo" }).length, 1, "pero el buscador los encuentra");
+  assert.equal(u.distribucionPorRango(CON_SIN_RATING).reduce((s, d) => s + d.cantidad, 0), JUGADORES.length);
+});
+
+test("parsearLinkSteam entiende los links /profiles/ e /id/ y rechaza el resto", () => {
+  assert.deepEqual(u.parsearLinkSteam("https://steamcommunity.com/profiles/76561198860991191/"), {
+    tipo: "profiles",
+    valor: "76561198860991191",
+  });
+  assert.deepEqual(u.parsearLinkSteam("https://steamcommunity.com/id/DJLucheo"), { tipo: "id", valor: "DJLucheo" });
+  assert.deepEqual(u.parsearLinkSteam(" https://steamcommunity.com/id/Valeeng "), { tipo: "id", valor: "Valeeng" });
+  assert.equal(u.parsearLinkSteam("http://steamcommunity.com/id/DJLucheo"), null, "solo https");
+  assert.equal(u.parsearLinkSteam("https://steamcommunity.com/profiles/123"), null);
+  assert.equal(u.parsearLinkSteam("https://steamcommunity.com/id/a/../../x"), null);
+  assert.equal(u.parsearLinkSteam("https://evil.com/steamcommunity.com/id/x"), null);
+  assert.equal(u.parsearLinkSteam(""), null);
+});
+
 test("esSlugKick acepta nombres de canal válidos y rechaza el resto", () => {
   assert.ok(u.esSlugKick("joacooo"));
   assert.ok(u.esSlugKick("canal-del_mod2"));

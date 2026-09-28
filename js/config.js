@@ -93,30 +93,25 @@ const CONFIG = {
   },
 
   // ---------- Rangos de CS2 ----------
-  // Se cargan a mano: Discord no sabe tu rango de CS2.
-  //  - premier: CS Rating (0 a ~35000). Define el color del rango.
-  //  - faceit:  nivel de FACEIT del 1 al 10, o null si no juega FACEIT.
-  //  - steam:   link al perfil de Steam (opcional, "" si no tiene).
-  //  - avatar:  URL de una imagen (opcional, "" muestra la inicial).
+  // Solo cargás el nombre y el link de Steam de cada jugador. El resto
+  // lo trae solo la función netlify/functions/rangos.mjs:
+  //  - Steam:   avatar (el perfil tiene que ser público).
+  //  - Leetify: CS Rating de Premier. El jugador tiene que haber entrado
+  //             una vez a leetify.com con su Steam; si no, sale "—".
+  //  - FACEIT:  nivel y ELO (con FACEIT_API_KEY en Netlify; sin la clave
+  //             se usa el nivel que informa Leetify).
+  //
+  //  - nombre:  cómo se lo conoce en el Discord (se muestra este, no el de Steam).
+  //  - steam:   link al perfil: .../profiles/7656... o .../id/nombre
+  //  - premier / faceit (opcionales): valores a mano que se usan solo
+  //    si las APIs no los tienen. Ej: premier: 15300, faceit: 6
   cs2: {
-    // Mientras esté en true, la sección muestra el aviso "Datos de ejemplo".
-    // Cuando cargues los rangos reales, ponelo en false.
-    datosDeEjemplo: true,
-    // Fecha de la última vez que actualizaste los rangos (AAAA-MM-DD)
-    actualizado: "2026-09-26",
     jugadores: [
-      { nombre: "Joacooo", premier: 18450, faceit: 7, steam: "", avatar: "" },
-      { nombre: "Nico", premier: 21300, faceit: 8, steam: "", avatar: "" },
-      { nombre: "Lu", premier: 12780, faceit: 5, steam: "", avatar: "" },
-      { nombre: "Tomi", premier: 25120, faceit: 9, steam: "", avatar: "" },
-      { nombre: "Fede", premier: 9870, faceit: 4, steam: "", avatar: "" },
-      { nombre: "Maxi", premier: 15600, faceit: 6, steam: "", avatar: "" },
-      { nombre: "Santi", premier: 30250, faceit: 10, steam: "", avatar: "" },
-      { nombre: "Agus", premier: 7430, faceit: 3, steam: "", avatar: "" },
-      { nombre: "Rama", premier: 16900, faceit: null, steam: "", avatar: "" },
-      { nombre: "Bauti", premier: 11200, faceit: 5, steam: "", avatar: "" },
-      { nombre: "Gonza", premier: 19990, faceit: 7, steam: "", avatar: "" },
-      { nombre: "Pipe", premier: 4200, faceit: 2, steam: "", avatar: "" },
+      { nombre: "Joaco", steam: "https://steamcommunity.com/profiles/76561198860991191" },
+      { nombre: "Kyo", steam: "https://steamcommunity.com/profiles/76561199100973080" },
+      { nombre: "Lucho", steam: "https://steamcommunity.com/id/DJLucheo" },
+      { nombre: "iBranDou", steam: "https://steamcommunity.com/profiles/76561198856536439" },
+      { nombre: "Valen", steam: "https://steamcommunity.com/id/Valeeng" },
     ],
   },
 };

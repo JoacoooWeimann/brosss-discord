@@ -99,6 +99,8 @@ test("netlify.toml define la CSP y permite todo lo que usa la página", () => {
 
   assert.ok(directivas["font-src"].includes("https://fonts.gstatic.com"));
   assert.ok(directivas["style-src"].includes("https://fonts.googleapis.com"));
+  // /api/rangos es de nuestro propio sitio
+  assert.ok(directivas["connect-src"].includes("'self'"), "connect-src tiene que permitir 'self' para /api/rangos");
   for (const origen of Object.values(ORIGENES.api)) {
     assert.ok(directivas["connect-src"].includes(origen), `connect-src no permite ${origen}`);
   }

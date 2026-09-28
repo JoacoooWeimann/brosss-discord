@@ -7,7 +7,7 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 const CONFIG = require("../js/config.js");
-const { esSlugKick, idDeTiktok } = require("../js/utilidades.js");
+const { esSlugKick, idDeTiktok, parsearLinkSteam } = require("../js/utilidades.js");
 
 const RAIZ = path.join(__dirname, "..");
 const esColor = (c) => /^#[0-9a-f]{3}([0-9a-f]{3})?$/i.test(c);
@@ -44,22 +44,23 @@ test("cada miembro del staff tiene un color válido", () => {
   });
 });
 
-test("la fecha de actualización de los rangos es válida", () => {
-  assert.match(CONFIG.cs2.actualizado, /^\d{4}-\d{2}-\d{2}$/);
-  assert.ok(!isNaN(new Date(CONFIG.cs2.actualizado)));
-});
-
-test("cada jugador de CS2 tiene datos válidos", () => {
+test("cada jugador de CS2 tiene nombre y un link de Steam válido (sin repetir)", () => {
   const nombres = new Set();
+  const perfiles = new Set();
   for (const j of CONFIG.cs2.jugadores) {
     assert.ok(typeof j.nombre === "string" && j.nombre.trim(), "falta el nombre");
     assert.ok(!nombres.has(j.nombre), `nombre repetido: ${j.nombre}`);
     nombres.add(j.nombre);
 
-    assert.ok(Number.isInteger(j.premier) && j.premier >= 0 && j.premier <= 50000, `rating inválido para ${j.nombre}: ${j.premier}`);
-    assert.ok(j.faceit === null || (Number.isInteger(j.faceit) && j.faceit >= 1 && j.faceit <= 10), `nivel FACEIT inválido para ${j.nombre}`);
-    if (j.steam) assert.match(j.steam, /^https:\/\/steamcommunity\.com\//, `link de Steam inválido para ${j.nombre}`);
-    if (j.avatar) assert.match(j.avatar, /^https:\/\//, `el avatar de ${j.nombre} tiene que ser https`);
+    const perfil = parsearLinkSteam(j.steam);
+    assert.ok(perfil, `link de Steam inválido para ${j.nombre}: usá steamcommunity.com/profiles/7656... o /id/nombre`);
+    const clave = `${perfil.tipo}/${perfil.valor.toLowerCase()}`;
+    assert.ok(!perfiles.has(clave), `Steam repetido: ${j.steam}`);
+    perfiles.add(clave);
+
+    // Valores a mano (opcionales)
+    if (j.premier != null) assert.ok(Number.isInteger(j.premier) && j.premier >= 0 && j.premier <= 50000, `rating inválido para ${j.nombre}: ${j.premier}`);
+    if (j.faceit != null) assert.ok(Number.isInteger(j.faceit) && j.faceit >= 1 && j.faceit <= 10, `nivel FACEIT inválido para ${j.nombre}`);
   }
 });
 

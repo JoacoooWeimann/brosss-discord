@@ -181,8 +181,8 @@
     <section id="rangos" class="seccion">
       <div class="contenedor">
         <h2 class="seccion__titulo">Rangos <span class="acento">CS2</span></h2>
-        <p class="seccion__sub">Ranking Premier · actualizado el <span id="rangos-actualizado"></span></p>
-        <p class="aviso" id="rangos-aviso" hidden>Datos de ejemplo: cargá los rangos reales en <code>js/config.js</code></p>
+        <p class="seccion__sub">Ranking Premier · <span id="rangos-actualizado">cargando…</span></p>
+        <p class="aviso" id="rangos-aviso" hidden>No pudimos consultar Steam ni Leetify: se muestran los datos cargados a mano.</p>
         <p class="seccion__sub" id="rangos-vacio-total" hidden>Todavía no hay jugadores cargados.</p>
 
         <div id="rangos-contenido">
@@ -210,6 +210,7 @@
             <div class="panel">
               <h3 class="panel__titulo">Top 3</h3>
               <ol class="podio" id="rangos-podio"></ol>
+              <p class="panel__vacio" id="rangos-podio-vacio" hidden>Todavía nadie tiene CS Rating.</p>
             </div>
 
             <!-- Gráfico: cuántos jugadores hay en cada rango -->
@@ -252,6 +253,7 @@
             </table>
             <p class="tabla-vacia" id="rangos-vacio" hidden>Ningún jugador coincide con la búsqueda.</p>
           </div>
+          <p class="rangos-nota" id="rangos-leetify" hidden>¿No aparece tu CS Rating? Entrá una vez a <a href="https://leetify.com" target="_blank" rel="noopener noreferrer">leetify.com</a> con tu cuenta de Steam y va a aparecer en la próxima actualización.</p>
         </div>
       </div>
     </section>

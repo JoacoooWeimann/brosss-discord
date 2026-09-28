@@ -1,0 +1,11 @@
+{
+  "actualizado": "2026-09-28T20:00:00.000Z",
+  "jugadores": [
+    { "nombre": "Joaco", "steam": "https://steamcommunity.com/profiles/76561198860991191", "avatar": "https://avatars.fastly.steamstatic.com/joaco_full.jpg", "premier": 18450, "premierManual": false, "enLeetify": true, "faceit": 7, "faceitElo": 1580, "faceitUrl": "https://www.faceit.com/es/players/joaco" },
+    { "nombre": "Santi", "steam": "https://steamcommunity.com/profiles/76561198000000001", "avatar": "", "premier": 30250, "premierManual": false, "enLeetify": true, "faceit": 10, "faceitElo": 2400, "faceitUrl": "" },
+    { "nombre": "Pipe", "steam": "https://steamcommunity.com/profiles/76561198000000002", "avatar": "javascript:alert(1)", "premier": 4200, "premierManual": true, "enLeetify": false, "faceit": null, "faceitElo": null, "faceitUrl": "javascript:alert(1)" },
+    { "nombre": "Gonza", "steam": "https://steamcommunity.com/profiles/76561198000000003", "avatar": "", "premier": 19990, "premierManual": false, "enLeetify": true, "faceit": 7, "faceitElo": null, "faceitUrl": "" },
+    { "nombre": "Kyo", "steam": "https://steamcommunity.com/profiles/76561199100973080", "avatar": "", "premier": null, "premierManual": false, "enLeetify": true, "faceit": 7, "faceitElo": 1629, "faceitUrl": "" },
+    { "nombre": "Lucho", "steam": "https://steamcommunity.com/profiles/76561199094152672", "avatar": "", "premier": null, "premierManual": false, "enLeetify": false, "faceit": null, "faceitElo": null, "faceitUrl": "" }
+  ]
+}

@@ -1,21 +1,46 @@
 // =============================================================
 //  RANGOS.JS
 //  Sección "Rangos CS2": resumen, podio, gráfico de distribución
-//  y tabla con buscador. Los datos salen de CONFIG.cs2 (config.js)
-//  y las cuentas de utilidades.js.
+//  y tabla con buscador. Los datos los arma la función /api/rangos
+//  (Steam + Leetify + FACEIT) a partir de CONFIG.cs2.jugadores.
+//  Si la función no responde, se usan los valores de config.js.
 // =============================================================
 
-function iniciarRangos() {
-  const { jugadores, actualizado, datosDeEjemplo } = CONFIG.cs2;
+async function pedirRangos() {
+  try {
+    const res = await fetch(URL_API_RANGOS);
+    if (!res.ok) throw new Error("respondió " + res.status);
+    const datos = await res.json();
+    if (!Array.isArray(datos?.jugadores)) throw new Error("respuesta inválida");
+    return datos;
+  } catch (error) {
+    console.warn("Rangos:", error.message);
+    return null;
+  }
+}
+
+async function cargarRangos() {
+  const datos = await pedirRangos();
+  if (datos) return iniciarRangos(datos.jugadores, new Date(datos.actualizado));
+
+  // Plan B: lo que haya cargado a mano en config.js
+  const respaldo = CONFIG.cs2.jugadores.map((j) => ({
+    nombre: j.nombre,
+    steam: j.steam,
+    premier: j.premier ?? null,
+    faceit: j.faceit ?? null,
+  }));
+  iniciarRangos(respaldo, null);
+}
+
+function iniciarRangos(jugadores, actualizado) {
   // Ordenamos una vez. La posición de cada jugador es la del ranking
   // completo, así no cambia cuando filtrás.
   const ranking = ordenarPorRating(jugadores).map((j, i) => ({ ...j, posicion: i + 1 }));
 
-  // "T00:00" para que tome la fecha en hora local y no en UTC (si no,
-  // en Argentina "2026-09-26" se mostraría como el 25)
-  const fecha = new Date(actualizado + "T00:00");
-  $("rangos-actualizado").textContent = fecha.toLocaleDateString("es-AR", { day: "numeric", month: "long", year: "numeric" });
-  $("rangos-aviso").hidden = !datosDeEjemplo;
+  const fechaValida = actualizado && !isNaN(actualizado);
+  $("rangos-actualizado").textContent = fechaValida ? `actualizado ${hace(actualizado)}` : "datos cargados a mano";
+  $("rangos-aviso").hidden = Boolean(fechaValida);
 
   if (ranking.length === 0) {
     $("rangos-contenido").hidden = true;
@@ -23,34 +48,46 @@ function iniciarRangos() {
     return;
   }
 
-  mostrarResumen(ranking);
-  mostrarPodio(ranking.slice(0, 3));
-  mostrarDistribucion(ranking);
+  const conRating = ranking.filter(tienePremier);
+  mostrarResumen(ranking, conRating);
+  mostrarPodio(conRating.slice(0, 3));
+  mostrarDistribucion(conRating);
   iniciarFiltros(ranking);
   mostrarTabla(ranking);
+  $("rangos-leetify").hidden = conRating.length === ranking.length;
 }
 
 // ---------- Resumen ----------
 
-function mostrarResumen(ranking) {
-  const promedio = Math.round(ranking.reduce((suma, j) => suma + j.premier, 0) / ranking.length);
+function mostrarResumen(ranking, conRating) {
   $("rangos-total").textContent = ranking.length;
+  if (conRating.length === 0) {
+    $("rangos-promedio").textContent = "—";
+    $("rangos-mejor").textContent = "—";
+    return;
+  }
+
+  const promedio = Math.round(conRating.reduce((suma, j) => suma + j.premier, 0) / conRating.length);
   $("rangos-promedio").textContent = formatearRating(promedio);
   $("rangos-promedio-rango").style.setProperty("--color-rango", rangoPremier(promedio).color);
   $("rangos-promedio-nombre").textContent = `Rango ${rangoPremier(promedio).nombre}`;
-  $("rangos-mejor").textContent = formatearRating(ranking[0].premier);
-  $("rangos-mejor-nombre").textContent = ranking[0].nombre;
+  $("rangos-mejor").textContent = formatearRating(conRating[0].premier);
+  $("rangos-mejor-nombre").textContent = conRating[0].nombre;
 }
 
 // ---------- Piezas reutilizables ----------
 
+// Color del rango, o gris apagado si no tiene rating
+const colorDe = (jugador) => (tienePremier(jugador) ? rangoPremier(jugador.premier).color : "var(--texto-suave)");
+
 // Avatar: imagen si hay, si no la inicial. El borde toma el color del rango.
 function crearAvatar(jugador, clase) {
   const avatar = crear("span", clase);
-  avatar.style.setProperty("--color-rango", rangoPremier(jugador.premier).color);
+  avatar.style.setProperty("--color-rango", colorDe(jugador));
   avatar.textContent = jugador.nombre.charAt(0).toUpperCase();
 
-  if (jugador.avatar) {
+  // Solo https: la URL viene de una API externa
+  if (jugador.avatar && jugador.avatar.startsWith("https://")) {
     const img = crear("img");
     img.src = jugador.avatar;
     img.alt = "";
@@ -65,6 +102,11 @@ function crearAvatar(jugador, clase) {
 
 // Insignia de CS Rating con el color del rango, como en el juego
 function crearInsigniaPremier(rating) {
+  if (!Number.isFinite(rating)) {
+    const vacio = crear("span", "sin-dato", "—");
+    vacio.title = "Sin CS Rating en Leetify";
+    return vacio;
+  }
   const rango = rangoPremier(rating);
   const insignia = crear("span", "premier", formatearRating(rating));
   insignia.style.setProperty("--color-rango", rango.color);
@@ -72,11 +114,18 @@ function crearInsigniaPremier(rating) {
   return insignia;
 }
 
-function crearInsigniaFaceit(nivel) {
+function crearInsigniaFaceit({ faceit: nivel, faceitElo, faceitUrl }) {
   if (!nivel) return crear("span", "sin-dato", "—");
-  const insignia = crear("span", "faceit", nivel);
+  // Con link al perfil, si lo sabemos (solo de faceit.com)
+  const conLink = typeof faceitUrl === "string" && faceitUrl.startsWith("https://www.faceit.com/");
+  const insignia = crear(conLink ? "a" : "span", "faceit", nivel);
+  if (conLink) {
+    insignia.href = faceitUrl;
+    insignia.target = "_blank";
+    insignia.rel = "noopener noreferrer";
+  }
   insignia.style.setProperty("--color-faceit", colorFaceit(nivel));
-  insignia.title = `FACEIT nivel ${nivel}`;
+  insignia.title = faceitElo ? `FACEIT nivel ${nivel} · ${formatear(faceitElo)} ELO` : `FACEIT nivel ${nivel}`;
   return insignia;
 }
 
@@ -85,6 +134,8 @@ function crearInsigniaFaceit(nivel) {
 function mostrarPodio(top) {
   const contenedor = $("rangos-podio");
   const medallas = ["1°", "2°", "3°"];
+  contenedor.hidden = top.length === 0;
+  $("rangos-podio-vacio").hidden = top.length > 0;
 
   top.forEach((jugador, i) => {
     const puesto = crear("li", `podio__puesto podio__puesto--${i + 1} revelar`);
@@ -104,6 +155,7 @@ function mostrarPodio(top) {
 // Barras horizontales de un solo color (es una sola serie: cantidad de
 // jugadores). El color del rango va en la muestrita al lado del nombre.
 
+// Recibe solo los jugadores con rating
 function mostrarDistribucion(ranking) {
   const lista = $("rangos-distribucion");
   const tooltip = $("rangos-tooltip");
@@ -112,7 +164,7 @@ function mostrarDistribucion(ranking) {
   const maximo = Math.max(...datos.map((d) => d.cantidad), 1);
 
   datos.forEach((d) => {
-    const porcentaje = Math.round((d.cantidad / ranking.length) * 100);
+    const porcentaje = ranking.length ? Math.round((d.cantidad / ranking.length) * 100) : 0;
     const rangoTexto = d.hasta === Infinity ? `${formatearRating(d.desde)}+` : `${formatearRating(d.desde)}–${formatearRating(d.hasta)}`;
     const detalle = `${d.nombre} (${rangoTexto}): ${d.cantidad} ${d.cantidad === 1 ? "jugador" : "jugadores"} · ${porcentaje}%`;
 
@@ -188,7 +240,7 @@ function mostrarTabla(jugadores) {
     celdaPremier.append(crearInsigniaPremier(j.premier));
 
     const celdaFaceit = crear("td", "col-faceit");
-    celdaFaceit.append(crearInsigniaFaceit(j.faceit));
+    celdaFaceit.append(crearInsigniaFaceit(j));
 
     const celdaSteam = crear("td", "col-steam");
     // Solo aceptamos links https para evitar "javascript:..." en el href
@@ -210,4 +262,4 @@ function mostrarTabla(jugadores) {
   $("rangos-vacio").hidden = jugadores.length > 0;
 }
 
-iniciarRangos();
+cargarRangos();
