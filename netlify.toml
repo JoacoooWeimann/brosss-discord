@@ -1,0 +1,61 @@
+# =============================================================
+#  Configuración de Netlify
+#  Netlify lee este archivo automáticamente al hacer el deploy.
+# =============================================================
+
+[build]
+  # Sitio estático: no hay que compilar nada, se publica la carpeta tal cual
+  publish = "."
+  # Antes de publicar corre los tests: si alguno falla, el deploy se cancela
+  command = "npm test"
+
+# ---------- Cabeceras de seguridad (para todas las páginas) ----------
+[[headers]]
+  for = "/*"
+  [headers.values]
+    # Content-Security-Policy: lista blanca de dónde se puede cargar cada cosa.
+    # Si alguien lograra inyectar un <script> de otro sitio, el navegador lo bloquea.
+    #  - script-src 'self'        → solo nuestros archivos JS
+    #  - style-src / font-src     → nuestro CSS + Google Fonts
+    #  - img-src https:           → imágenes de cualquier sitio https (avatares de Discord/Steam)
+    #  - connect-src              → fetch() solo a la API de Discord
+    #  - frame-ancestors 'none'   → nadie puede meter la página en un <iframe>
+    Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https: data:; connect-src https://discord.com; frame-ancestors 'none'; base-uri 'self'; form-action 'none'; object-src 'none'"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+    X-Frame-Options = "DENY"
+
+# ---------- Caché ----------
+# Los nombres de CSS/JS no cambian entre versiones, así que el navegador
+# tiene que preguntar siempre si hay una versión nueva (no-cache no significa
+# "no guardar": guarda, pero revalida antes de usar).
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    Cache-Control = "no-cache"
+[[headers]]
+  for = "/css/*"
+  [headers.values]
+    Cache-Control = "no-cache"
+[[headers]]
+  for = "/js/*"
+  [headers.values]
+    Cache-Control = "no-cache"
+# Las imágenes casi nunca cambian: se guardan una semana
+[[headers]]
+  for = "/img/*"
+  [headers.values]
+    Cache-Control = "public, max-age=604800"
+
+# Los tests y archivos de desarrollo no tienen que ser públicos
+[[redirects]]
+  from = "/tests/*"
+  to = "/404.html"
+  status = 404
+  force = true
+[[redirects]]
+  from = "/package.json"
+  to = "/404.html"
+  status = 404
+  force = true

@@ -1,0 +1,13 @@
+{
+  "name": "brosss-web",
+  "version": "1.0.0",
+  "description": "Página del servidor de Discord BROSSS",
+  "private": true,
+  "scripts": {
+    "test": "node --test \"tests/*.test.js\"",
+    "start": "npx --yes serve ."
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BROSSS | Servidor de Discord</title>
+  <meta name="description" content="Página oficial del servidor de Discord BROSSS: estadísticas en vivo, reglas, staff y link para unirte.">
+  <link rel="icon" href="img/icono.png" type="image/png">
+
+  <!-- Vista previa al compartir el link (Discord, WhatsApp, X...).
+       theme-color es el color de la barrita lateral del embed en Discord.
+       og:image debería ser una URL absoluta: cambiala cuando subas el sitio. -->
+  <meta name="theme-color" content="#22e36b">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="BROSSS | Servidor de Discord">
+  <meta property="og:description" content="Comunidad gamer de CS2, Minecraft y League of Legends. Sumate al Discord.">
+  <meta property="og:image" content="img/icono.png">
+  <link rel="preconnect" href="https://discord.com">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <!-- Link oculto para quien navega con teclado: salta directo al contenido -->
+  <a href="#stats" class="saltar">Saltar al contenido</a>
+
+  <!-- ===== NAVEGACIÓN ===== -->
+  <header class="nav">
+    <div class="progreso" id="progreso"></div>
+    <div class="contenedor nav__inner">
+      <a href="#inicio" class="nav__marca">
+        <img src="img/icono.png" alt="" width="36" height="36">
+        <span data-nombre>BROSSS</span>
+      </a>
+      <button class="nav__toggle" type="button" aria-label="Abrir menú" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+      <nav class="nav__links">
+        <a href="#stats">Estadísticas</a>
+        <a href="#juegos">Juegos</a>
+        <a href="#rangos">Rangos</a>
+        <a href="#reglas">Reglas</a>
+        <a href="#staff">Staff</a>
+        <a href="#faq">FAQ</a>
+        <a href="#" class="btn btn--chico" data-invitacion target="_blank" rel="noopener">Unirse</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- ===== HERO ===== -->
+    <section id="inicio" class="hero">
+      <!-- Fondo animado de partículas (lo dibuja js/efectos.js) -->
+      <canvas class="hero__particulas" id="particulas" aria-hidden="true"></canvas>
+      <div class="contenedor hero__inner">
+        <div class="hero__logo" id="hero-logo">
+          <img src="img/icono.png" alt="Logo de BROSSS" width="220" height="220">
+        </div>
+        <div class="hero__chips">
+          <p class="chip"><span class="punto"></span><span><span id="hero-conectados">—</span> conectados ahora</span></p>
+          <p class="chip" id="hero-antiguedad" hidden><svg class="icono" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><span id="hero-antiguedad-texto"></span></p>
+        </div>
+        <h1 class="hero__titulo" data-nombre>BROSSS</h1>
+        <p class="hero__rotativo" aria-hidden="true">Jugamos <span id="texto-rotativo" class="acento"></span><span class="cursor">_</span></p>
+        <p class="hero__desc" id="hero-desc"></p>
+        <div class="hero__acciones">
+          <a href="#" class="btn" data-invitacion target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M20.3 4.4A19.8 19.8 0 0 0 15.4 3l-.6 1.3a18.3 18.3 0 0 0-5.6 0L8.6 3a19.7 19.7 0 0 0-4.9 1.5C.6 9.1-.3 13.6.1 18a19.9 19.9 0 0 0 6 3l1.3-2a12.9 12.9 0 0 1-2-1l.5-.4a14.2 14.2 0 0 0 12.2 0l.5.4-2 1 1.3 2a19.8 19.8 0 0 0 6-3c.5-5.1-.8-9.6-3.6-13.6ZM8 15.3c-1.2 0-2.2-1.1-2.2-2.4S6.8 10.5 8 10.5s2.2 1.1 2.2 2.4-1 2.4-2.2 2.4Zm8 0c-1.2 0-2.2-1.1-2.2-2.4s1-2.4 2.2-2.4 2.2 1.1 2.2 2.4-1 2.4-2.2 2.4Z"/></svg>
+            Unirse al servidor
+          </a>
+          <a href="#stats" class="btn btn--borde">Ver estadísticas</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== ESTADÍSTICAS ===== -->
+    <section id="stats" class="seccion">
+      <div class="contenedor">
+        <h2 class="seccion__titulo">Estadísticas <span class="acento">en vivo</span></h2>
+        <p class="seccion__sub" id="stats-fuente">Cargando datos…</p>
+
+        <div class="stats">
+          <article class="stat">
+            <span class="stat__icono"><svg class="icono" viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+            <span class="stat__numero" id="stat-miembros">0</span>
+            <span class="stat__label">Miembros</span>
+          </article>
+          <article class="stat">
+            <span class="stat__icono"><span class="punto"></span></span>
+            <span class="stat__numero" id="stat-conectados">0</span>
+            <span class="stat__label">Conectados</span>
+          </article>
+          <article class="stat">
+            <span class="stat__icono"><svg class="icono" viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12l4 6-10 13L2 9Z"/><path d="M11 3 8 9l4 13 4-13-3-6"/><path d="M2 9h20"/></svg></span>
+            <span class="stat__numero" id="stat-boosts">0</span>
+            <span class="stat__label">Boosts</span>
+          </article>
+          <article class="stat">
+            <span class="stat__icono"><svg class="icono" viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg></span>
+            <span class="stat__numero" id="stat-nivel">0</span>
+            <span class="stat__label">Nivel del servidor</span>
+          </article>
+        </div>
+
+        <!-- Barra: qué porcentaje de miembros está conectado -->
+        <div class="actividad">
+          <div class="actividad__texto">
+            <span>Actividad del servidor</span>
+            <span id="actividad-porcentaje">0%</span>
+          </div>
+          <div class="actividad__barra"><div class="actividad__relleno" id="actividad-relleno"></div></div>
+        </div>
+
+        <!-- Lista de conectados (solo si el widget está activo) -->
+        <div class="conectados" id="conectados" hidden>
+          <h3>Conectados ahora</h3>
+          <ul class="conectados__lista" id="conectados-lista"></ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== JUEGOS ===== -->
+    <section id="juegos" class="seccion seccion--alt">
+      <div class="contenedor">
+        <h2 class="seccion__titulo">A qué <span class="acento">jugamos</span></h2>
+        <p class="seccion__sub">Actividad de cada juego en el servidor, según Discord.</p>
+        <div class="juegos" id="juegos-lista"></div>
+      </div>
+    </section>
+
+    <!-- ===== RANGOS CS2 (lo dibuja js/rangos.js) ===== -->
+    <section id="rangos" class="seccion">
+      <div class="contenedor">
+        <h2 class="seccion__titulo">Rangos <span class="acento">CS2</span></h2>
+        <p class="seccion__sub">Ranking Premier · actualizado el <span id="rangos-actualizado"></span></p>
+        <p class="aviso" id="rangos-aviso" hidden>Datos de ejemplo: cargá los rangos reales en <code>js/config.js</code></p>
+        <p class="seccion__sub" id="rangos-vacio-total" hidden>Todavía no hay jugadores cargados.</p>
+
+        <div id="rangos-contenido">
+          <!-- Resumen -->
+          <div class="rangos-resumen">
+            <div class="resumen">
+              <span class="resumen__label">Jugadores</span>
+              <span class="resumen__valor" id="rangos-total">—</span>
+              <span class="resumen__detalle">en el ranking</span>
+            </div>
+            <div class="resumen">
+              <span class="resumen__label">Rating promedio</span>
+              <span class="resumen__valor"><span class="barra__muestra" id="rangos-promedio-rango"></span><span id="rangos-promedio">—</span></span>
+              <span class="resumen__detalle" id="rangos-promedio-nombre"></span>
+            </div>
+            <div class="resumen">
+              <span class="resumen__label">Mejor rating</span>
+              <span class="resumen__valor" id="rangos-mejor">—</span>
+              <span class="resumen__detalle" id="rangos-mejor-nombre"></span>
+            </div>
+          </div>
+
+          <div class="rangos-grid">
+            <!-- Podio: los 3 mejores -->
+            <div class="panel">
+              <h3 class="panel__titulo">Top 3</h3>
+              <ol class="podio" id="rangos-podio"></ol>
+            </div>
+
+            <!-- Gráfico: cuántos jugadores hay en cada rango -->
+            <figure class="panel distribucion">
+              <figcaption class="panel__titulo">Jugadores por rango</figcaption>
+              <ul class="barras" id="rangos-distribucion"></ul>
+              <div class="tooltip" id="rangos-tooltip" role="tooltip" hidden></div>
+            </figure>
+          </div>
+
+          <!-- Filtros -->
+          <div class="filtros">
+            <label class="buscador">
+              <svg class="icono" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+              <span class="solo-lectores">Buscar jugador</span>
+              <input type="search" id="rangos-buscar" placeholder="Buscar jugador…" autocomplete="off">
+            </label>
+            <label>
+              <span class="solo-lectores">Filtrar por rango</span>
+              <select id="rangos-filtro">
+                <option value="">Todos los rangos</option>
+              </select>
+            </label>
+          </div>
+
+          <!-- Tabla: el ranking completo -->
+          <div class="tabla-contenedor">
+            <table class="ranking">
+              <caption class="solo-lectores">Ranking de CS Rating de los miembros</caption>
+              <thead>
+                <tr>
+                  <th scope="col" class="col-posicion">#</th>
+                  <th scope="col">Jugador</th>
+                  <th scope="col">CS Rating</th>
+                  <th scope="col" class="col-faceit">FACEIT</th>
+                  <th scope="col" class="col-steam">Steam</th>
+                </tr>
+              </thead>
+              <tbody id="rangos-tabla"></tbody>
+            </table>
+            <p class="tabla-vacia" id="rangos-vacio" hidden>Ningún jugador coincide con la búsqueda.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== REGLAS ===== -->
+    <section id="reglas" class="seccion seccion--alt">
+      <div class="contenedor">
+        <h2 class="seccion__titulo">Reglas del <span class="acento">servidor</span></h2>
+        <p class="seccion__sub">Leelas antes de entrar. Romperlas puede terminar en muteo o ban.</p>
+        <ol class="reglas" id="reglas-lista"></ol>
+      </div>
+    </section>
+
+    <!-- ===== STAFF Y ROLES ===== -->
+    <section id="staff" class="seccion">
+      <div class="contenedor">
+        <h2 class="seccion__titulo">Nuestro <span class="acento">staff</span></h2>
+        <p class="seccion__sub">Las personas que mantienen el servidor funcionando.</p>
+        <div class="staff" id="staff-lista"></div>
+      </div>
+    </section>
+
+    <!-- ===== FAQ ===== -->
+    <section id="faq" class="seccion seccion--alt">
+      <div class="contenedor contenedor--angosto">
+        <h2 class="seccion__titulo">Preguntas <span class="acento">frecuentes</span></h2>
+        <div class="faq" id="faq-lista"></div>
+      </div>
+    </section>
+
+    <!-- ===== CTA FINAL ===== -->
+    <section class="cta">
+      <div class="contenedor">
+        <h2>¿Listo para sumarte?</h2>
+        <p>Somos <strong id="cta-miembros">muchos</strong> y siempre hay lugar para uno más.</p>
+
+        <!-- Tarjeta con el mismo estilo que las invitaciones dentro de Discord -->
+        <div class="invitacion">
+          <p class="invitacion__titulo">Te invitaron a unirte a un servidor</p>
+          <div class="invitacion__cuerpo">
+            <img src="img/icono.png" alt="" width="56" height="56">
+            <div class="invitacion__datos">
+              <strong data-nombre>BROSSS</strong>
+              <span>
+                <span class="punto"></span> <b id="inv-conectados">—</b> en línea
+                <span class="punto punto--gris"></span> <b id="inv-miembros">—</b> miembros
+              </span>
+            </div>
+            <a href="#" class="btn btn--chico" data-invitacion target="_blank" rel="noopener">Unirse</a>
+          </div>
+          <button class="invitacion__copiar" id="copiar-link" type="button"><svg class="icono" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg> Copiar link de invitación</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="contenedor">
+      <p>© <span id="anio"></span> <span data-nombre>BROSSS</span>. No afiliado a Discord Inc.</p>
+    </div>
+  </footer>
+
+  <button class="arriba" id="arriba" type="button" aria-label="Volver arriba">↑</button>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <noscript>
+    <p class="noscript">Activá JavaScript para ver las estadísticas en vivo, los rangos y las reglas.</p>
+  </noscript>
+
+  <!-- El orden importa: cada archivo usa cosas de los anteriores
+       (CONFIG, los helpers de utilidades.js y el observador de main.js) -->
+  <script src="js/config.js"></script>
+  <script src="js/utilidades.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/rangos.js"></script>
+  <script src="js/efectos.js"></script>
+</body>
+</html>

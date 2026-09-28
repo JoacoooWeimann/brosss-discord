@@ -1,0 +1,28 @@
+{
+  "code": "gSuRgnK5V",
+  "guild": {
+    "id": "748980597535539325",
+    "name": "BROSSS",
+    "icon": "90db9c36727f8fcd544912e5c263cc1d",
+    "premium_subscription_count": 2,
+    "premium_tier": 1
+  },
+  "profile": {
+    "game_activity": {
+      "1158877933042143272": {
+        "activity_level": 2,
+        "activity_score": 87
+      },
+      "1402418491272986635": {
+        "activity_level": 1,
+        "activity_score": 25
+      },
+      "1402418696126992445": {
+        "activity_level": 2,
+        "activity_score": 80
+      }
+    }
+  },
+  "approximate_member_count": 146,
+  "approximate_presence_count": 20
+}
