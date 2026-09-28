@@ -46,12 +46,14 @@ const CONFIG = {
     { nombre: "League of Legends", idApp: "1402418696126992445", imagen: "img/lol.png" },
   ],
 
+  // Solo lo más importante: las reglas completas están en el servidor.
   reglas: [
-    { titulo: "Respeto ante todo", texto: "Nada de insultos, acoso, racismo ni discriminación de ningún tipo." },
-    { titulo: "Sin spam", texto: "No floodees mensajes, emojis ni menciones. Tampoco publicidad de otros servidores sin permiso." },
-    { titulo: "Cada cosa en su canal", texto: "Usá el canal que corresponde a cada tema. Los memes, en #memes." },
-    { titulo: "Contenido apropiado", texto: "Prohibido el contenido NSFW, gore o ilegal fuera de canales habilitados." },
-    { titulo: "Hacé caso al staff", texto: "Si un moderador te pide algo, respetalo. Si no estás de acuerdo, hablalo por privado." },
+    { titulo: "Respeto con todos", texto: "No seas irrespetuoso con NADIE y sé amistoso con todos. Cualquier comportamiento fuera de lugar no se permite." },
+    { titulo: "Sin spam", texto: "No spammees en los chats." },
+    { titulo: "Nada de contenido +18", texto: "Prohibido publicar contenido pornográfico." },
+    { titulo: "Links seguros", texto: "No mandes links ni archivos que puedan dañar los dispositivos de los pibes." },
+    { titulo: "Cada cosa en su canal", texto: "Música solo en comandos, memes en memes, pelis en películas y el resto en general." },
+    { titulo: "¿Problemas? Al staff", texto: "Si alguien rompe una regla grave, avisale al staff por privado. A los admins escribiles solo por temas del servidor." },
   ],
 
   faq: [
