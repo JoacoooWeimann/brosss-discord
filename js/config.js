@@ -76,7 +76,8 @@ const CONFIG = {
   // el directo en la página (el que tenga más espectadores primero).
   // Mientras la lista esté vacía, la sección Stream no se muestra.
   streamers: [
-    // { nombre: "Joacooo", rol: "Fundador", kick: "nombre-del-canal" },
+    { nombre: "Joacooo", rol: "Fundador", kick: "joacooow" },
+    { nombre: "iBranDou", rol: "Moderador", kick: "ibrandou" },
   ],
 
   // ---------- Clips de TikTok ----------
