@@ -30,7 +30,8 @@ function iniciarClips() {
     fachada.setAttribute("aria-label", `Reproducir clip: ${titulo}`);
     const play = crear("span", "clip__play");
     play.setAttribute("aria-hidden", "true");
-    fachada.append(crear("span", "clip__marca", "TikTok"), play, crear("span", "clip__titulo", titulo));
+    // Arriba se ve de qué cuenta es el clip (puede no ser la oficial)
+    fachada.append(crear("span", "clip__marca", "@" + usuarioDeTiktok(clip.url)), play, crear("span", "clip__titulo", titulo));
 
     fachada.addEventListener("click", () => {
       const iframe = crear("iframe");

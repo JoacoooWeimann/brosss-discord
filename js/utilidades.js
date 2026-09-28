@@ -196,6 +196,11 @@ function idDeTiktok(url) {
   return coincidencia ? coincidencia[1] : null;
 }
 
+// La cuenta que subió el video: .../@awaken_brosss/video/... → "awaken_brosss"
+function usuarioDeTiktok(url) {
+  return idDeTiktok(url) ? /tiktok\.com\/@([\w.-]+)\//.exec(url)[1] : null;
+}
+
 const urlPlayerTiktok = (id) => `${ORIGENES.iframes.tiktok}/player/v1/${id}?autoplay=1&rel=0&description=1&music_info=1`;
 const urlPerfilTiktok = (usuario) => `https://www.tiktok.com/@${usuario}`;
 
@@ -224,6 +229,7 @@ if (typeof module !== "undefined") {
     ordenarStreamers,
     duracionDesde,
     idDeTiktok,
+    usuarioDeTiktok,
     urlPlayerTiktok,
   };
 }

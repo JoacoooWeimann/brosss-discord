@@ -113,6 +113,18 @@ test("los clips se muestran como fachada y cargan el video al hacer clic", async
   assert.match(iframe.src, /^https:\/\/www\.tiktok\.com\/player\/v1\/7412345678901234567\?autoplay=1/);
 });
 
+test("cada clip muestra su cuenta, pero Ver más lleva siempre a la oficial", async () => {
+  const nav = await abrir({
+    clips: [
+      { url: "https://www.tiktok.com/@brosss.clips/video/7412345678901234567" },
+      { url: "https://www.tiktok.com/@awaken_brosss/video/7622815767372860693" },
+    ],
+  });
+  const marcas = nav.elemento("clips-lista").children.map((li) => li.children[0].children[0].textContent);
+  assert.deepEqual(marcas, ["@brosss.clips", "@awaken_brosss"]);
+  assert.equal(nav.elemento("clips-perfil").href, "https://www.tiktok.com/@brosss.clips");
+});
+
 test("sin clips, muestra el mensaje y el link al perfil", async () => {
   const nav = await abrir({ clips: [] });
   assert.equal(nav.elemento("clips-vacio").hidden, false);

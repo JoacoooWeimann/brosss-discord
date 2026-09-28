@@ -177,6 +177,12 @@ test("duracionDesde arma textos cortos", () => {
   assert.equal(u.duracionDesde(ahora + 60000, ahora), "0 min", "un reloj adelantado no da negativo");
 });
 
+test("usuarioDeTiktok saca la cuenta del link, solo si el link es válido", () => {
+  assert.equal(u.usuarioDeTiktok("https://www.tiktok.com/@awaken_brosss/video/7622815767372860693"), "awaken_brosss");
+  assert.equal(u.usuarioDeTiktok("https://www.tiktok.com/@brosss.clips/video/7461024379594345733?lang=es"), "brosss.clips");
+  assert.equal(u.usuarioDeTiktok("https://vm.tiktok.com/ZMabc123/"), null);
+});
+
 test("idDeTiktok saca el ID de links completos y rechaza los demás", () => {
   assert.equal(u.idDeTiktok("https://www.tiktok.com/@brosss/video/7412345678901234567"), "7412345678901234567");
   assert.equal(u.idDeTiktok("https://www.tiktok.com/@bro.sss_2/video/7412345678901234567?is_from_webapp=1&lang=es"), "7412345678901234567");

@@ -85,10 +85,14 @@ const CONFIG = {
   // Pegá el link COMPLETO de cada video (abrilo en la compu y copiá la
   // URL). Los links cortos tipo vm.tiktok.com no sirven.
   // "titulo" es opcional: es el texto que se ve antes de reproducir.
+  // Pueden ser clips de cualquier cuenta: en cada tarjeta se ve de quién es.
+  // "usuario" es la cuenta oficial: la del botón "Ver más en TikTok".
   tiktok: {
     usuario: "brosss.clips",
     clips: [
       { url: "https://www.tiktok.com/@brosss.clips/video/7461024379594345733", titulo: "Se desubicó" },
+      // El más visto de @awaken_brosss
+      { url: "https://www.tiktok.com/@awaken_brosss/video/7622815767372860693", titulo: "El grito" },
     ],
   },
 
