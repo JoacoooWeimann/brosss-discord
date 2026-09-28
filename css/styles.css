@@ -571,11 +571,14 @@ a { color: inherit; text-decoration: none; }
    ============================================================= */
 .clips {
   list-style: none;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  /* Flex y no grid: así con pocos clips (o uno solo) quedan centrados */
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 20px;
 }
 .clip {
+  width: 240px;
   aspect-ratio: 9 / 16; /* formato vertical de TikTok */
   border-radius: var(--radio);
   overflow: hidden;
@@ -1380,7 +1383,8 @@ a { color: inherit; text-decoration: none; }
   .podio__puesto { padding: 12px 4px; }
   .col-faceit, .col-steam { display: none; }
   .stream__info { flex-direction: column; align-items: stretch; }
-  .clips { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .clips { gap: 10px; }
+  .clip { width: calc(50% - 5px); } /* 2 por fila */
   .clip__play { width: 48px; height: 48px; }
   .filtros label:not(.buscador), .filtros select { width: 100%; }
   .ranking th, .ranking td { padding: 10px 12px; }

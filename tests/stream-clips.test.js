@@ -116,6 +116,7 @@ test("los clips se muestran como fachada y cargan el video al hacer clic", async
 test("sin clips, muestra el mensaje y el link al perfil", async () => {
   const nav = await abrir({ clips: [] });
   assert.equal(nav.elemento("clips-vacio").hidden, false);
-  assert.equal(nav.elemento("clips-perfil").href, "https://www.tiktok.com/@brosss");
-  assert.equal(nav.elemento("clips-usuario").textContent, "@brosss");
+  const usuario = nav.evaluar("CONFIG.tiktok.usuario");
+  assert.equal(nav.elemento("clips-perfil").href, `https://www.tiktok.com/@${usuario}`);
+  assert.equal(nav.elemento("clips-usuario").textContent, "@" + usuario);
 });

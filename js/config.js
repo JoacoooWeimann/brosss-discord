@@ -85,9 +85,9 @@ const CONFIG = {
   // URL). Los links cortos tipo vm.tiktok.com no sirven.
   // "titulo" es opcional: es el texto que se ve antes de reproducir.
   tiktok: {
-    usuario: "brosss",
+    usuario: "brosss.clips",
     clips: [
-      // { url: "https://www.tiktok.com/@brosss/video/7412345678901234567", titulo: "Ace con la Deagle" },
+      { url: "https://www.tiktok.com/@brosss.clips/video/7461024379594345733", titulo: "Se desubicó" },
     ],
   },
 
