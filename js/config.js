@@ -63,12 +63,15 @@ const CONFIG = {
     { pregunta: "¿Hay eventos?", respuesta: "Todos los viernes hacemos torneos o noches de juegos. Mirá #eventos para el cronograma." },
   ],
 
-  // color: cualquier color CSS; se usa para el borde del avatar y la etiqueta del rol.
+  //  - usuario: nombre de usuario de Discord, sin @ (se muestra como @usuario).
+  //  - color:   cualquier color CSS; se usa para el borde del avatar y la etiqueta del rol.
+  //  - avatar:  foto guardada en img/staff/ (ej: "img/staff/joacooo.png"), o "" para la inicial.
   staff: [
-    { nombre: "Joaco", rol: "Fundador", color: "#22e36b", avatar: "" },
-    { nombre: "Nico", rol: "Admin", color: "#ff5c5c", avatar: "" },
-    { nombre: "Lu", rol: "Moderadora", color: "#5c9dff", avatar: "" },
-    { nombre: "Tomi", rol: "Moderador", color: "#5c9dff", avatar: "" },
+    { nombre: "Joacooo", usuario: "", rol: "Owner", color: "#22e36b", avatar: "" },
+    { nombre: "lil dober", usuario: "", rol: "Owner", color: "#22e36b", avatar: "" },
+    { nombre: "Lazza", usuario: "", rol: "Mod", color: "#5c9dff", avatar: "" },
+    { nombre: "Lucho", usuario: "", rol: "Mod", color: "#5c9dff", avatar: "" },
+    { nombre: "Kyo", usuario: "", rol: "Mod", color: "#5c9dff", avatar: "" },
   ],
 
   // ---------- Stream (Kick) ----------

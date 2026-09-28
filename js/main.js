@@ -65,7 +65,9 @@ function cargarContenido() {
       avatar.textContent = persona.nombre.charAt(0).toUpperCase();
     }
 
-    tarjeta.append(avatar, crear("h3", "", persona.nombre), crear("span", "etiqueta", persona.rol));
+    tarjeta.append(avatar, crear("h3", "", persona.nombre));
+    if (persona.usuario) tarjeta.append(crear("span", "miembro__usuario", "@" + persona.usuario));
+    tarjeta.append(crear("span", "etiqueta", persona.rol));
     $("staff-lista").append(tarjeta);
   });
 

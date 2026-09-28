@@ -1074,6 +1074,7 @@ a.faceit:hover { box-shadow: 0 0 10px var(--color-faceit); }
 }
 .miembro__avatar img { width: 100%; height: 100%; object-fit: cover; }
 .miembro h3 { font-size: 1.15rem; }
+.miembro__usuario { color: var(--texto-suave); font-size: 0.85rem; }
 .etiqueta {
   display: inline-flex;
   align-items: center;

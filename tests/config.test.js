@@ -41,6 +41,12 @@ test("cada miembro del staff tiene un color válido", () => {
   CONFIG.staff.forEach((s) => {
     assert.ok(s.nombre && s.rol);
     assert.ok(esColor(s.color), `color inválido para ${s.nombre}: ${s.color}`);
+    // Usuarios de Discord: minúsculas, números, punto y guion bajo (2 a 32)
+    if (s.usuario) assert.match(s.usuario, /^[a-z0-9_.]{2,32}$/, `usuario de Discord inválido para ${s.nombre} (va sin @)`);
+    if (s.avatar) {
+      if (s.avatar.startsWith("https://")) return;
+      assert.ok(fs.existsSync(path.join(RAIZ, s.avatar)), `falta la foto ${s.avatar} de ${s.nombre}`);
+    }
   });
 });
 
