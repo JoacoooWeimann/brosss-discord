@@ -6,8 +6,6 @@
 [build]
   # Sitio estático: no hay que compilar nada, se publica la carpeta tal cual
   publish = "."
-  # Funciones del servidor (hoy solo /api/rangos)
-  functions = "netlify/functions"
   # Antes de publicar corre los tests: si alguno falla, el deploy se cancela
   command = "npm test"
 
@@ -20,10 +18,10 @@
     #  - script-src 'self'        → solo nuestros archivos JS
     #  - style-src / font-src     → nuestro CSS + Google Fonts
     #  - img-src https:           → imágenes de cualquier sitio https (avatares de Discord/Steam)
-    #  - connect-src              → fetch() a nuestra función /api/rangos ('self') y a las APIs de Discord y Kick
+    #  - connect-src              → fetch() solo a las APIs de Discord y Kick
     #  - frame-src                → iframes solo del reproductor de Kick y de TikTok
     #  - frame-ancestors 'none'   → nadie puede meter la página en un <iframe>
-    Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https: data:; connect-src 'self' https://discord.com https://kick.com; frame-src https://player.kick.com https://www.tiktok.com; frame-ancestors 'none'; base-uri 'self'; form-action 'none'; object-src 'none'"
+    Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https: data:; connect-src https://discord.com https://kick.com; frame-src https://player.kick.com https://www.tiktok.com; frame-ancestors 'none'; base-uri 'self'; form-action 'none'; object-src 'none'"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
     Permissions-Policy = "camera=(), microphone=(), geolocation=()"
@@ -51,18 +49,9 @@
   [headers.values]
     Cache-Control = "public, max-age=604800"
 
-# esbuild junta la función con config.js y utilidades.js en un solo archivo
-[functions]
-  node_bundler = "esbuild"
-
 # Los tests y archivos de desarrollo no tienen que ser públicos
 [[redirects]]
   from = "/tests/*"
-  to = "/404.html"
-  status = 404
-  force = true
-[[redirects]]
-  from = "/netlify/*"
   to = "/404.html"
   status = 404
   force = true

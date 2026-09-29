@@ -680,171 +680,6 @@ a { color: inherit; text-decoration: none; }
 .juego .actividad__barra { height: 8px; }
 
 /* =============================================================
-   RANGOS CS2
-   ============================================================= */
-.aviso {
-  width: fit-content;
-  max-width: 100%;
-  margin: -32px auto 32px;
-  padding: 6px 14px;
-  border: 1px dashed #ffc800;
-  border-radius: 8px;
-  color: #ffd966;
-  font-size: 0.9rem;
-  text-align: center;
-}
-.aviso code { font-size: 0.85rem; }
-
-/* Avatar con borde del color del rango */
-.avatar-rango {
-  position: relative;
-  display: inline-grid;
-  place-items: center;
-  flex-shrink: 0;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  border: 2px solid var(--color-rango);
-  background: var(--fondo);
-  font-family: var(--fuente-titulos);
-  font-weight: 700;
-  overflow: hidden;
-}
-.avatar-rango img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-/* Insignia de CS Rating: forma inclinada como en el juego */
-.premier {
-  display: inline-block;
-  padding: 2px 12px 2px 14px;
-  border-left: 4px solid var(--color-rango);
-  background: color-mix(in srgb, var(--color-rango) 14%, transparent);
-  color: var(--color-rango);
-  font-family: var(--fuente-titulos);
-  font-size: 1.05rem;
-  font-weight: 700;
-  font-style: italic;
-  letter-spacing: 0.5px;
-  transform: skewX(-12deg);
-  font-variant-numeric: tabular-nums;
-}
-
-/* Nivel de FACEIT: círculo con el número */
-.faceit {
-  display: inline-grid;
-  place-items: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  border: 2px solid var(--color-faceit);
-  color: var(--texto);
-  font-size: 0.85rem;
-  font-weight: 700;
-}
-.sin-dato { color: var(--texto-suave); }
-
-/* Filtros */
-.filtros {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-bottom: 16px;
-}
-.filtros input,
-.filtros select {
-  height: 44px;
-  padding: 0 14px;
-  border: 1px solid var(--borde);
-  border-radius: 10px;
-  background: var(--tarjeta);
-  color: var(--texto);
-  font: inherit;
-}
-.filtros input:focus,
-.filtros select:focus { border-color: var(--verde); outline: none; }
-.buscador {
-  position: relative;
-  flex: 1;
-  min-width: 200px;
-}
-.buscador .icono {
-  position: absolute;
-  left: 14px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--texto-suave);
-}
-.buscador input { width: 100%; padding-left: 42px; }
-
-/* Tabla del ranking */
-.tabla-contenedor {
-  overflow-x: auto; /* en pantallas muy chicas scrollea la tabla, no la página */
-  border: 1px solid var(--borde);
-  border-radius: var(--radio);
-  background: var(--tarjeta);
-}
-.ranking {
-  width: 100%;
-  border-collapse: collapse;
-}
-.ranking th {
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--borde);
-  color: var(--texto-suave);
-  font-size: 0.8rem;
-  font-weight: 600;
-  text-align: left;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-.ranking td {
-  padding: 10px 16px;
-  border-bottom: 1px solid var(--borde);
-  vertical-align: middle;
-}
-.ranking tbody tr:last-child td { border-bottom: none; }
-.ranking tbody tr { transition: background 0.2s; }
-.ranking tbody tr:hover { background: rgba(34, 227, 107, 0.05); }
-.col-posicion {
-  width: 48px;
-  color: var(--texto-suave);
-  font-variant-numeric: tabular-nums;
-}
-.tabla-jugador {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-weight: 500;
-}
-.link-steam {
-  color: var(--verde);
-  font-size: 0.9rem;
-}
-.link-steam:hover { text-decoration: underline; }
-.tabla-vacia {
-  padding: 24px;
-  text-align: center;
-  color: var(--texto-suave);
-}
-
-/* El nivel de FACEIT es un link al perfil cuando lo sabemos */
-a.faceit { text-decoration: none; }
-a.faceit:hover { box-shadow: 0 0 10px var(--color-faceit); }
-
-/* Nota para los que todavía no tienen CS Rating */
-.rangos-nota {
-  margin-top: 16px;
-  text-align: center;
-  color: var(--texto-suave);
-  font-size: 0.9rem;
-}
-.rangos-nota a { color: var(--verde); }
-
-/* =============================================================
    REGLAS
    ============================================================= */
 .reglas {
@@ -1233,15 +1068,12 @@ a.faceit:hover { box-shadow: 0 0 10px var(--color-faceit); }
   .stat__numero { font-size: 2.2rem; }
   .reglas { grid-template-columns: 1fr; }
   .invitacion__cuerpo { flex-wrap: wrap; }
-  .col-faceit, .col-steam { display: none; }
   .stream__info { flex-direction: column; align-items: stretch; }
   .clips { gap: 10px; }
   .clip { width: calc(50% - 5px); } /* 2 por fila */
   .staff, .staff__fila { gap: 12px; }
   .staff__fila > .miembro { flex-basis: calc(50% - 6px); padding: 24px 10px; } /* 2 por fila, el 3° centrado */
   .clip__play { width: 48px; height: 48px; }
-  .filtros label:not(.buscador), .filtros select { width: 100%; }
-  .ranking th, .ranking td { padding: 10px 12px; }
   .invitacion .btn { width: 100%; justify-content: center; }
 }
 

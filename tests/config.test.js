@@ -7,7 +7,7 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 const CONFIG = require("../js/config.js");
-const { esSlugKick, idDeTiktok, parsearLinkSteam } = require("../js/utilidades.js");
+const { esSlugKick, idDeTiktok } = require("../js/utilidades.js");
 
 const RAIZ = path.join(__dirname, "..");
 const esColor = (c) => /^#[0-9a-f]{3}([0-9a-f]{3})?$/i.test(c);
@@ -48,29 +48,6 @@ test("cada miembro del staff tiene un color válido", () => {
       assert.ok(fs.existsSync(path.join(RAIZ, s.avatar)), `falta la foto ${s.avatar} de ${s.nombre}`);
     }
   });
-});
-
-test("cada jugador de CS2 tiene un link de Steam válido (sin repetir)", () => {
-  const nombres = new Set();
-  const perfiles = new Set();
-  for (const j of CONFIG.cs2.jugadores) {
-    // El nombre es opcional (si falta, se usa el de Steam), pero no vacío ni repetido
-    if (j.nombre !== undefined) {
-      assert.ok(typeof j.nombre === "string" && j.nombre.trim(), `nombre vacío en ${j.steam}: sacalo o completalo`);
-      assert.ok(!nombres.has(j.nombre), `nombre repetido: ${j.nombre}`);
-      nombres.add(j.nombre);
-    }
-
-    const perfil = parsearLinkSteam(j.steam);
-    assert.ok(perfil, `link de Steam inválido para ${j.nombre}: usá steamcommunity.com/profiles/7656... o /id/nombre`);
-    const clave = `${perfil.tipo}/${perfil.valor.toLowerCase()}`;
-    assert.ok(!perfiles.has(clave), `Steam repetido: ${j.steam}`);
-    perfiles.add(clave);
-
-    // Los rangos ya no se cargan a mano: los trae /api/rangos
-    assert.equal(j.premier, undefined, `${j.steam}: el Premier se busca solo, no lo cargues a mano`);
-    assert.equal(j.faceit, undefined, `${j.steam}: el FACEIT se busca solo, no lo cargues a mano`);
-  }
 });
 
 test("cada streamer tiene nombre y un canal de Kick válido (sin repetir)", () => {

@@ -102,32 +102,6 @@ const CONFIG = {
       { url: "https://www.tiktok.com/@awaken_brosss/video/7622815767372860693", titulo: "El grito" },
     ],
   },
-
-  // ---------- Rangos de CS2 ----------
-  // Solo cargás el link de Steam de cada jugador. El resto lo trae solo
-  // la función netlify/functions/rangos.mjs y se actualiza cada 30 minutos:
-  //  - Steam:   nombre y avatar (el perfil tiene que ser público).
-  //  - Leetify: CS Rating de Premier. El jugador tiene que haber entrado
-  //             una vez a leetify.com con su Steam; si no, sale "—".
-  //  - FACEIT:  nivel y ELO (con FACEIT_API_KEY en Netlify; sin la clave
-  //             se usa el nivel que informa Leetify).
-  //
-  //  - steam:   link al perfil: .../profiles/7656... o .../id/nombre
-  //  - nombre (opcional): cómo se lo conoce en el Discord. Si no está,
-  //             se muestra su nombre de Steam.
-  cs2: {
-    jugadores: [
-      { nombre: "Joaco", steam: "https://steamcommunity.com/profiles/76561198860991191" },
-      { nombre: "Kyo", steam: "https://steamcommunity.com/profiles/76561199100973080" },
-      { nombre: "Lucho", steam: "https://steamcommunity.com/id/DJLucheo" },
-      { nombre: "iBranDou", steam: "https://steamcommunity.com/profiles/76561198856536439" },
-      { nombre: "Valen", steam: "https://steamcommunity.com/id/Valeeng" },
-      { nombre: "Lazza", steam: "https://steamcommunity.com/profiles/76561198989511094" },
-      { steam: "https://steamcommunity.com/profiles/76561199096936219" },
-      { steam: "https://steamcommunity.com/profiles/76561199101650425" },
-      { steam: "https://steamcommunity.com/profiles/76561199028481487" },
-    ],
-  },
 };
 
 // Solo para los tests con Node (en el navegador se ignora)

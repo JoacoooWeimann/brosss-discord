@@ -1,8 +1,8 @@
 // =============================================================
 //  NAVEGADOR FALSO
-//  Node no tiene "document" ni "window". Para testear main.js y
-//  rangos.js armamos una imitación mínima del DOM: solo lo que esos
-//  archivos usan. Después ejecutamos los scripts dentro de un
+//  Node no tiene "document" ni "window". Para testear main.js,
+//  stream.js y clips.js armamos una imitación mínima del DOM: solo lo
+//  que esos archivos usan. Después ejecutamos los scripts dentro de un
 //  "contexto" aislado (módulo vm) como si fueran el navegador.
 // =============================================================
 

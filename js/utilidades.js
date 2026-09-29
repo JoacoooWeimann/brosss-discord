@@ -44,84 +44,6 @@ function fechaDeCreacion(id) {
   return new Date(Number(BigInt(id) >> 22n) + EPOCA_DISCORD);
 }
 
-// ---------- Rangos de CS2 ----------
-
-// Rangos de CS Rating (Premier) con los colores que usa el juego.
-// "desde" es el rating mínimo de cada rango.
-const RANGOS_PREMIER = [
-  { desde: 0, hasta: 4999, color: "#b0c3d9", nombre: "Gris" },
-  { desde: 5000, hasta: 9999, color: "#8cc6ff", nombre: "Celeste" },
-  { desde: 10000, hasta: 14999, color: "#6a7dff", nombre: "Azul" },
-  { desde: 15000, hasta: 19999, color: "#c166ff", nombre: "Violeta" },
-  { desde: 20000, hasta: 24999, color: "#f03cff", nombre: "Rosa" },
-  { desde: 25000, hasta: 29999, color: "#eb4b4b", nombre: "Rojo" },
-  { desde: 30000, hasta: Infinity, color: "#ffd700", nombre: "Dorado" },
-];
-
-// Devuelve el rango de un rating. Recorremos de mayor a menor y
-// nos quedamos con el primero cuyo mínimo alcanza.
-function rangoPremier(rating) {
-  for (let i = RANGOS_PREMIER.length - 1; i >= 0; i--) {
-    if (rating >= RANGOS_PREMIER[i].desde) return RANGOS_PREMIER[i];
-  }
-  return RANGOS_PREMIER[0];
-}
-
-// Colores de los niveles de FACEIT (1 a 10)
-function colorFaceit(nivel) {
-  if (nivel >= 10) return "#fe1f00";
-  if (nivel >= 8) return "#ff6309";
-  if (nivel >= 4) return "#ffc800";
-  if (nivel >= 2) return "#1ce400";
-  return "#eeeeee";
-}
-
-// premier puede ser null (no lo sabemos): esos jugadores no tienen rango
-const tienePremier = (j) => Number.isFinite(j.premier);
-
-// Ordena de mayor a menor rating sin modificar el array original
-// ([...lista] hace una copia; sort() modifica el array que recibe).
-// Los que no tienen rating van al final, ordenados por FACEIT.
-function ordenarPorRating(jugadores) {
-  const rating = (j) => (tienePremier(j) ? j.premier : -1);
-  return [...jugadores].sort(
-    (a, b) => rating(b) - rating(a) || (b.faceitElo ?? 0) - (a.faceitElo ?? 0) || (b.faceit ?? 0) - (a.faceit ?? 0)
-  );
-}
-
-// Filtra por texto (nombre) y por rango. Sin distinguir mayúsculas
-// ni tildes: "joaco" encuentra a "Joacó".
-function normalizar(texto) {
-  return texto.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
-}
-
-function filtrarJugadores(jugadores, { texto = "", rango = "" } = {}) {
-  const buscado = normalizar(texto.trim());
-  return jugadores.filter(
-    (j) =>
-      normalizar(j.nombre).includes(buscado) && (!rango || (tienePremier(j) && rangoPremier(j.premier).nombre === rango))
-  );
-}
-
-// Formato de rating como en el juego: 18450 → "18,450"
-const formatearRating = (n) => n.toLocaleString("en-US");
-
-// ---------- Steam ----------
-
-// Entiende los dos formatos de link de perfil:
-//   https://steamcommunity.com/profiles/76561198860991191 → { tipo: "profiles", valor: "7656..." }
-//   https://steamcommunity.com/id/DJLucheo               → { tipo: "id", valor: "DJLucheo" }
-// Cualquier otra cosa devuelve null.
-function parsearLinkSteam(url) {
-  const m = /^https:\/\/steamcommunity\.com\/(?:profiles\/(7656\d{13})|id\/([\w-]{2,32}))\/?$/.exec(String(url).trim());
-  if (!m) return null;
-  return m[1] ? { tipo: "profiles", valor: m[1] } : { tipo: "id", valor: m[2] };
-}
-
-// Ruta de nuestra Netlify Function (netlify/functions/rangos.mjs), que
-// junta Steam, Leetify y FACEIT. Es del mismo sitio: va como 'self' en la CSP.
-const URL_API_RANGOS = "/api/rangos";
-
 // ---------- Sitios externos ----------
 // Todos los dominios de afuera que usa la página, en un solo lugar.
 // Un test verifica que la CSP de netlify.toml los permita: si agregás
@@ -203,15 +125,6 @@ if (typeof module !== "undefined") {
     formatear,
     hace,
     fechaDeCreacion,
-    RANGOS_PREMIER,
-    rangoPremier,
-    colorFaceit,
-    tienePremier,
-    ordenarPorRating,
-    filtrarJugadores,
-    formatearRating,
-    parsearLinkSteam,
-    URL_API_RANGOS,
     ORIGENES,
     esSlugKick,
     urlApiKick,
