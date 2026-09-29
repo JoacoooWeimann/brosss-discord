@@ -104,9 +104,9 @@ const CONFIG = {
       // De @awaken_brosss, de más a menos visto
       { url: "https://www.tiktok.com/@awaken_brosss/video/7622815767372860693", titulo: "El grito" },
       { url: "https://www.tiktok.com/@awaken_brosss/video/7646523199303224577", titulo: "El sabio espera" },
-      { url: "https://www.tiktok.com/@awaken_brosss/video/7627003985282501908", titulo: "Humos chidos" },
+      { url: "https://www.tiktok.com/@awaken_brosss/video/7627003985282501908", titulo: "Humos chidos", portada: "img/clips/7627003985282501908.webp" },
       { url: "https://www.tiktok.com/@awaken_brosss/video/7646469761756318992", titulo: "Lo di todo" },
-      { url: "https://www.tiktok.com/@awaken_brosss/video/7649191563439967504", titulo: "¿Elias?" },
+      { url: "https://www.tiktok.com/@awaken_brosss/video/7649191563439967504", titulo: "¿Elias?", portada: "img/clips/7649191563439967504.webp" },
       { url: "https://www.tiktok.com/@awaken_brosss/video/7645116848089910545", titulo: "Se re janea el gordo" },
     ],
   },
