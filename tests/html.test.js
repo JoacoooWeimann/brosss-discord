@@ -76,7 +76,9 @@ test("la página tiene los metadatos básicos para producción", () => {
   assert.match(html, /<meta name="viewport"/);
   assert.match(html, /<meta name="description" content=".{50,}"/);
   assert.match(html, /<title>[^<]+<\/title>/);
-  assert.match(html, /property="og:image"/);
+  // Discord y WhatsApp solo muestran la imagen si la dirección es completa
+  assert.match(html, /property="og:image" content="https:\/\/[^"]+"/, "og:image tiene que ser una URL https completa");
+  assert.match(html, /property="og:url" content="https:\/\/[^"]+"/);
 });
 
 test("no hay estilos ni scripts en línea (los bloquearía la CSP)", () => {
