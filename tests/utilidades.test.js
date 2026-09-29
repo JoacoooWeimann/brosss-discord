@@ -87,13 +87,6 @@ test("filtrarJugadores filtra por rango y combina con el texto", () => {
   assert.deepEqual(u.filtrarJugadores(JUGADORES, { texto: "g", rango: "Violeta" }).map((j) => j.nombre), ["Gonza"]);
 });
 
-test("distribucionPorRango cuenta a todos los jugadores una sola vez", () => {
-  const dist = u.distribucionPorRango(JUGADORES);
-  assert.equal(dist.length, u.RANGOS_PREMIER.length);
-  assert.equal(dist.reduce((s, d) => s + d.cantidad, 0), JUGADORES.length);
-  assert.equal(dist.find((d) => d.nombre === "Violeta").cantidad, 2);
-});
-
 // Sin CS Rating (no está en Leetify): premier null
 const CON_SIN_RATING = [
   ...JUGADORES,
@@ -111,7 +104,6 @@ test("ordenarPorRating deja al final a los que no tienen rating, ordenados por F
 test("los jugadores sin rating no entran en ningún rango", () => {
   assert.equal(u.filtrarJugadores(CON_SIN_RATING, { rango: "Gris" }).map((j) => j.nombre).join(), "Pipe");
   assert.equal(u.filtrarJugadores(CON_SIN_RATING, { texto: "kyo" }).length, 1, "pero el buscador los encuentra");
-  assert.equal(u.distribucionPorRango(CON_SIN_RATING).reduce((s, d) => s + d.cantidad, 0), JUGADORES.length);
 });
 
 test("parsearLinkSteam entiende los links /profiles/ e /id/ y rechaza el resto", () => {

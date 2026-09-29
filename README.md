@@ -12,7 +12,7 @@ Hecha con **HTML, CSS y JavaScript puro**, sin frameworks ni dependencias.
 - Lista de usuarios conectados (si el widget del servidor está activo)
 - **Stream en vivo (Kick)**: detecta qué mods están transmitiendo y muestra el directo incrustado, con aviso "EN VIVO" en el menú
 - **Clips de TikTok**: se cargan al hacer clic para que la página no pese
-- **Rangos CS2 automáticos**: con solo el link de Steam de cada jugador, trae su avatar, su CS Rating de Premier (vía Leetify) y su nivel de FACEIT. Resumen, podio, gráfico de distribución y tabla con buscador y filtro
+- **Rangos CS2 automáticos**: con solo el link de Steam de cada jugador, trae su nombre, avatar, CS Rating de Premier (vía Leetify) y nivel de FACEIT, y se actualiza solo. Tabla con buscador y filtro por rango
 - Reglas, staff, rangos y FAQ generados desde un único archivo de configuración
 - Diseño oscuro con acentos verde neón, responsive con menú hamburguesa
 - Animaciones al hacer scroll con `IntersectionObserver`
@@ -33,7 +33,7 @@ Hecha con **HTML, CSS y JavaScript puro**, sin frameworks ni dependencias.
 4. Cargá los canales de Kick de los mods en `streamers` (solo el nombre que va después de `kick.com/`) y los links de TikTok en `tiktok.clips` (el link completo, no el corto `vm.tiktok.com`). Mientras `streamers` esté vacío, la sección Stream no se muestra.
 5. Editá las reglas, el staff y la FAQ en ese mismo archivo.
 6. En `cs2.jugadores` cargá el **nombre y el link de Steam** de cada jugador. Los rangos se buscan solos (ver [Rangos de CS2](#rangos-de-cs2)).
-7. Abrí `index.html` en el navegador, o usá la extensión **Live Server** de VS Code. Sin Netlify, la función de rangos no corre y la tabla usa los valores cargados a mano.
+7. Abrí `index.html` en el navegador, o usá la extensión **Live Server** de VS Code. Sin Netlify, la función de rangos no corre y la sección muestra un aviso.
 
 Si no cargás ningún código, la página muestra **datos de ejemplo**.
 
@@ -46,7 +46,7 @@ Brosss/
 ├── js/config.js        → datos del servidor (lo único que tenés que editar)
 ├── js/utilidades.js    → funciones puras (fechas, rangos, filtros): se testean con Node
 ├── js/main.js          → lógica: API de Discord, caché, animaciones, menú
-├── js/rangos.js        → sección Rangos CS2: podio, gráfico, tabla y filtros
+├── js/rangos.js        → sección Rangos CS2: tabla, filtros y actualización automática
 ├── js/stream.js        → sección Stream: quién está en vivo en Kick y el reproductor
 ├── js/clips.js         → sección Clips: videos de TikTok
 ├── js/efectos.js       → efectos visuales: partículas, toast, scroll, secreto
@@ -83,15 +83,21 @@ Conectá el repositorio de GitHub en Netlify ("Add new site → Import an existi
 
 ## Rangos de CS2
 
-La función `netlify/functions/rangos.mjs` corre en Netlify y arma el ranking a partir de `CONFIG.cs2.jugadores`. La respuesta queda 30 minutos en la caché de Netlify.
+En `CONFIG.cs2.jugadores` solo va el link de Steam de cada jugador (y, si querés, el `nombre` con el que lo conocen en el Discord). La función `netlify/functions/rangos.mjs` corre en Netlify y arma el ranking. La respuesta queda 30 minutos en la caché de Netlify y la página la vuelve a pedir cada 15 minutos, así que **la tabla se actualiza sola**.
 
 | Dato | De dónde sale | Qué hace falta |
 |---|---|---|
-| Avatar | Perfil de Steam | Que el perfil sea público |
+| Nombre y avatar | Perfil de Steam | Que el perfil sea público |
 | CS Rating (Premier) | [Leetify](https://leetify.com) | Que el jugador haya entrado **una vez** a leetify.com con su Steam y tenga partidas de Premier |
 | Nivel y ELO de FACEIT | API de FACEIT (o Leetify si no hay clave) | Que tenga FACEIT vinculado a ese Steam |
 
-Valve no publica el CS Rating en la API de Steam: por eso se usa Leetify. Si a alguien no le aparece, podés cargarlo a mano en `config.js` (`premier: 15300`), y se usa hasta que Leetify lo tenga.
+Valve no publica el CS Rating en ninguna API (ni siquiera el coordinador del juego lo da para otros jugadores). Los sitios que lo muestran lo sacan de partidas que analizaron ellos. Leetify es el único con una API pública, por eso cada jugador tiene que:
+
+1. Entrar a [leetify.com](https://leetify.com) con su cuenta de Steam.
+2. Darle a Leetify su **código de autenticación de partidas** (Leetify lo pide al registrarse y explica de dónde sacarlo, en el soporte de Steam). Con eso, Leetify importa solo cada partida nueva.
+3. Tener un CS Rating en la temporada actual (se muestra después de ganar 10 partidas de Premier).
+
+Desde ahí, el rating aparece y se actualiza solo en la página, sin que nadie tenga que tocar nada.
 
 **Clave de FACEIT (recomendada):**
 

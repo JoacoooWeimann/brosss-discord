@@ -182,45 +182,10 @@
       <div class="contenedor">
         <h2 class="seccion__titulo">Rangos <span class="acento">CS2</span></h2>
         <p class="seccion__sub">Ranking Premier · <span id="rangos-actualizado">cargando…</span></p>
-        <p class="aviso" id="rangos-aviso" hidden>No pudimos consultar Steam ni Leetify: se muestran los datos cargados a mano.</p>
+        <p class="aviso" id="rangos-aviso" hidden>No pudimos actualizar los rangos. Se vuelve a intentar solo en unos minutos.</p>
         <p class="seccion__sub" id="rangos-vacio-total" hidden>Todavía no hay jugadores cargados.</p>
 
         <div id="rangos-contenido">
-          <!-- Resumen -->
-          <div class="rangos-resumen">
-            <div class="resumen">
-              <span class="resumen__label">Jugadores</span>
-              <span class="resumen__valor" id="rangos-total">—</span>
-              <span class="resumen__detalle">en el ranking</span>
-            </div>
-            <div class="resumen">
-              <span class="resumen__label">Rating promedio</span>
-              <span class="resumen__valor"><span class="barra__muestra" id="rangos-promedio-rango"></span><span id="rangos-promedio">—</span></span>
-              <span class="resumen__detalle" id="rangos-promedio-nombre"></span>
-            </div>
-            <div class="resumen">
-              <span class="resumen__label">Mejor rating</span>
-              <span class="resumen__valor" id="rangos-mejor">—</span>
-              <span class="resumen__detalle" id="rangos-mejor-nombre"></span>
-            </div>
-          </div>
-
-          <div class="rangos-grid">
-            <!-- Podio: los 3 mejores -->
-            <div class="panel">
-              <h3 class="panel__titulo">Top 3</h3>
-              <ol class="podio" id="rangos-podio"></ol>
-              <p class="panel__vacio" id="rangos-podio-vacio" hidden>Todavía nadie tiene CS Rating.</p>
-            </div>
-
-            <!-- Gráfico: cuántos jugadores hay en cada rango -->
-            <figure class="panel distribucion">
-              <figcaption class="panel__titulo">Jugadores por rango</figcaption>
-              <ul class="barras" id="rangos-distribucion"></ul>
-              <div class="tooltip" id="rangos-tooltip" role="tooltip" hidden></div>
-            </figure>
-          </div>
-
           <!-- Filtros -->
           <div class="filtros">
             <label class="buscador">

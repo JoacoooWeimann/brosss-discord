@@ -112,44 +112,44 @@ test("el staff se arma en pirámide: una fila por rol, en el orden de config.js"
 const nombreDe = (fila) => fila.children[1].children[0].children[1].textContent;
 const filaDe = (filas, nombre) => filas.find((f) => nombreDe(f) === nombre);
 
-// Abre la página con la API de rangos respondiendo (o no) y, si se pasa,
-// reemplaza la lista de jugadores de config.js
-async function abrirRangos({ rutas = { "/api/rangos": "rangos-api.json" }, jugadores } = {}) {
-  const nav = crearNavegador({ fetch: fetchCon(rutas) });
-  nav.cargar("js/config.js");
-  if (jugadores) {
-    nav.contexto.__jugadores = jugadores;
-    nav.evaluar("CONFIG.cs2.jugadores = __jugadores");
-  }
-  nav.cargar("js/utilidades.js", "js/main.js", "js/rangos.js");
+// Abre la página con /api/rangos respondiendo según "responder":
+// el nombre de un fixture, un objeto con la respuesta, o null (caída).
+// Se puede cambiar después con nav.responderRangos = ...
+async function abrirRangos({ responder = "rangos-api.json" } = {}) {
+  const deFixture = fetchCon({ "/api/rangos": "rangos-api.json" });
+  let nav;
+  const fetch = async (url) => {
+    const r = nav.responderRangos;
+    if (!url.includes("/api/rangos") || r === null) return { ok: false, status: 503, json: async () => ({}) };
+    if (typeof r === "string") return deFixture(url);
+    return { ok: true, status: 200, json: async () => r };
+  };
+  nav = crearNavegador({ fetch });
+  nav.responderRangos = responder;
+  nav.cargar("js/config.js", "js/utilidades.js", "js/main.js", "js/rangos.js");
   await esperar();
   return nav;
 }
 
-test("con la API de rangos, arma resumen, podio, gráfico y tabla", async () => {
+// Dispara la actualización automática de los rangos (cada 15 minutos)
+async function refrescarRangos(nav) {
+  const refresco = nav.temporizadores.find((t) => t.ms === 15 * 60_000);
+  assert.ok(refresco, "los rangos se tienen que actualizar solos cada 15 minutos");
+  refresco.fn();
+  await esperar();
+}
+
+test("con la API de rangos, arma la tabla ordenada por CS Rating", async () => {
   const nav = await abrirRangos();
 
-  assert.equal(nav.elemento("rangos-total").textContent, "6");
-  // El promedio y el mejor solo cuentan a los que tienen rating
-  assert.equal(nav.elemento("rangos-promedio").textContent, "18,223");
-  assert.equal(nav.elemento("rangos-mejor").textContent, "30,250");
-  assert.equal(nav.elemento("rangos-mejor-nombre").textContent, "Santi");
-  assert.equal(nav.elemento("rangos-podio").children.length, 3);
-  assert.equal(nav.elemento("rangos-podio-vacio").hidden, true);
   assert.equal(nav.elemento("rangos-aviso").hidden, true, "con datos en vivo no hay aviso");
   assert.match(nav.elemento("rangos-actualizado").textContent, /^actualizado hace/);
   assert.equal(nav.elemento("rangos-leetify").hidden, false, "hay jugadores sin rating: se ve la nota de Leetify");
 
-  // El gráfico va de mayor a menor rango y suma solo a los que tienen rating
-  const barras = nav.elemento("rangos-distribucion").children;
-  assert.equal(barras.length, 7);
-  assert.match(barras[0].getAttribute("aria-label"), /^Dorado/);
-  const total = barras.reduce((s, b) => s + Number(b.children[1].children[1].textContent), 0);
-  assert.equal(total, 4);
-
-  // Tabla: los sin rating al final (Kyo antes que Lucho por tener FACEIT)
+  // Los sin rating al final (Kyo antes que Lucho por tener FACEIT)
   const filas = nav.elemento("rangos-tabla").children;
   assert.deepEqual(filas.map(nombreDe), ["Santi", "Gonza", "Joaco", "Pipe", "Kyo", "Lucho"]);
+  assert.equal(filas[0].children[2].textContent, "30,250");
   assert.equal(filas[4].children[2].textContent, "—");
   assert.equal(filas[4].children[3].children[0].title, "FACEIT nivel 7 · 1.629 ELO");
 });
@@ -169,35 +169,54 @@ test("un avatar que no es https no se carga", async () => {
   assert.equal(avatarDe("Pipe").children.length, 0, "javascript: no se usa como src");
 });
 
-test("si la API de rangos no responde, usa los valores de config.js y lo avisa", async () => {
-  const nav = await abrirRangos({
-    rutas: {},
-    jugadores: [
-      { nombre: "A", steam: "https://steamcommunity.com/id/a", premier: 12000, faceit: 5 },
-      { nombre: "B", steam: "https://steamcommunity.com/id/b" },
-    ],
-  });
+test("si la API de rangos no responde, avisa y no muestra datos inventados", async () => {
+  const nav = await abrirRangos({ responder: null });
   assert.equal(nav.elemento("rangos-aviso").hidden, false);
-  assert.equal(nav.elemento("rangos-actualizado").textContent, "datos cargados a mano");
-  assert.equal(nav.elemento("rangos-mejor").textContent, "12,000");
-  assert.equal(nav.elemento("rangos-tabla").children.length, 2);
+  assert.equal(nav.elemento("rangos-contenido").hidden, true);
+  assert.equal(nav.elemento("rangos-actualizado").textContent, "sin datos por ahora");
+  assert.equal(nav.elemento("rangos-tabla").children.length, 0);
 });
 
-test("si nadie tiene rating, el podio muestra un mensaje y el resumen queda en —", async () => {
-  const nav = await abrirRangos({
-    rutas: {},
-    jugadores: [{ nombre: "A", steam: "https://steamcommunity.com/id/a" }],
-  });
-  assert.equal(nav.elemento("rangos-podio").hidden, true);
-  assert.equal(nav.elemento("rangos-podio-vacio").hidden, false);
-  assert.equal(nav.elemento("rangos-mejor").textContent, "—");
-  assert.equal(nav.elemento("rangos-tabla").children.length, 1);
+test("la tabla se actualiza sola y conserva la búsqueda", async () => {
+  const nav = await abrirRangos();
+  nav.elemento("rangos-buscar").value = "joaco";
+  nav.elemento("rangos-buscar").disparar("input");
+
+  nav.responderRangos = {
+    actualizado: new Date().toISOString(),
+    jugadores: [
+      { nombre: "Joaco", steam: "", premier: 21000, faceit: 8 },
+      { nombre: "Santi", steam: "", premier: 20000, faceit: 10 },
+    ],
+  };
+  await refrescarRangos(nav);
+
+  const filas = nav.elemento("rangos-tabla").children;
+  assert.equal(filas.length, 1, "sigue filtrado por la búsqueda");
+  assert.equal(filas[0].children[2].textContent, "21,000");
+  assert.equal(filas[0].children[0].textContent, "1", "subió al primer puesto");
+  assert.equal(nav.elemento("rangos-leetify").hidden, true, "ahora todos tienen rating");
+  // Los filtros se arman una sola vez: no se duplican las opciones
+  assert.equal(nav.elemento("rangos-filtro").children.length, 7);
+});
+
+test("si falla una actualización, se mantiene la última tabla con un aviso", async () => {
+  const nav = await abrirRangos();
+  nav.responderRangos = null;
+  await refrescarRangos(nav);
+
+  assert.equal(nav.elemento("rangos-aviso").hidden, false);
+  assert.equal(nav.elemento("rangos-contenido").hidden, false);
+  assert.equal(nav.elemento("rangos-tabla").children.length, 6);
+  assert.match(nav.elemento("rangos-actualizado").textContent, /^actualizado hace/);
 });
 
 test("un nombre con HTML se muestra como texto (no se ejecuta)", async () => {
   const nav = await abrirRangos({
-    rutas: {},
-    jugadores: [{ nombre: "<img src=x onerror=alert(1)>", premier: 1000, steam: "javascript:alert(1)" }],
+    responder: {
+      actualizado: new Date().toISOString(),
+      jugadores: [{ nombre: "<img src=x onerror=alert(1)>", premier: 1000, steam: "javascript:alert(1)" }],
+    },
   });
   const fila = nav.elemento("rangos-tabla").children[0];
   assert.match(fila.textContent, /<img src=x/, "el nombre tiene que aparecer literal");
@@ -229,7 +248,7 @@ test("el buscador y el filtro de rango actualizan la tabla", async () => {
 });
 
 test("sin jugadores cargados, la sección muestra un mensaje en vez de romperse", async () => {
-  const nav = await abrirRangos({ rutas: {}, jugadores: [] });
+  const nav = await abrirRangos({ responder: { actualizado: new Date().toISOString(), jugadores: [] } });
   assert.equal(nav.elemento("rangos-contenido").hidden, true);
   assert.equal(nav.elemento("rangos-vacio-total").hidden, false);
 });

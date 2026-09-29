@@ -13,7 +13,7 @@ const ID_LUCHO = "76561199094152672";
 const xmlSteam = (id, avatar) => `<?xml version="1.0" encoding="UTF-8"?>
 <profile>
   <steamID64>${id}</steamID64>
-  <steamID><![CDATA[Un nombre de Steam]]></steamID>
+  <steamID><![CDATA[Nombre de Steam]]></steamID>
   <avatarFull><![CDATA[${avatar}]]></avatarFull>
   <groups><group><avatarFull><![CDATA[https://avatars.fastly.steamstatic.com/grupo_full.jpg]]></avatarFull></group></groups>
 </profile>`;
@@ -55,12 +55,16 @@ const RUTAS = [
 
 const JUGADORES = [
   { nombre: "Joaco", steam: `https://steamcommunity.com/profiles/${ID_JOACO}` },
-  { nombre: "Lucho", steam: "https://steamcommunity.com/id/DJLucheo", premier: 9000 },
+  { steam: "https://steamcommunity.com/id/DJLucheo" },
 ];
 
-test("leerPerfilSteam saca el ID y el avatar del perfil, no el de un grupo", async () => {
+test("leerPerfilSteam saca el ID, el nombre y el avatar del perfil, no el de un grupo", async () => {
   const { leerPerfilSteam } = await cargar();
-  assert.deepEqual(leerPerfilSteam(xmlSteam(ID_JOACO, "https://a.com/yo.jpg")), { id: ID_JOACO, avatar: "https://a.com/yo.jpg" });
+  assert.deepEqual(leerPerfilSteam(xmlSteam(ID_JOACO, "https://a.com/yo.jpg")), {
+    id: ID_JOACO,
+    nombre: "Nombre de Steam",
+    avatar: "https://a.com/yo.jpg",
+  });
   assert.equal(leerPerfilSteam(xmlSteam(ID_JOACO, "")).avatar, "", "sin avatar no se inventa uno del grupo");
   assert.equal(leerPerfilSteam("<response><error>The specified profile could not be found.</error></response>"), null);
 });
@@ -77,7 +81,6 @@ test("junta Steam, Leetify y FACEIT, con FACEIT por encima de Leetify", async ()
     steam: `https://steamcommunity.com/profiles/${ID_JOACO}`,
     avatar: "https://avatars.fastly.steamstatic.com/joaco_full.jpg",
     premier: 18450,
-    premierManual: false,
     enLeetify: true,
     faceit: 7,
     faceitElo: 1580,
@@ -90,16 +93,25 @@ test("junta Steam, Leetify y FACEIT, con FACEIT por encima de Leetify", async ()
   assert.ok(pedidos.every((p) => !p.url.includes("clave-faceit")));
 });
 
-test("un link /id/ se convierte al ID numérico y, sin Leetify, usa el Premier de config.js", async () => {
+test("un link /id/ se convierte al ID numérico, y sin nombre en config.js se usa el de Steam", async () => {
   const { armarRanking } = await cargar();
   const { fn } = fetchFalso(RUTAS);
   const [, lucho] = (await armarRanking(JUGADORES, { fetch: fn })).jugadores;
 
   assert.equal(lucho.steam, `https://steamcommunity.com/profiles/${ID_LUCHO}`);
-  assert.equal(lucho.premier, 9000);
-  assert.equal(lucho.premierManual, true);
+  assert.equal(lucho.nombre, "Nombre de Steam");
+  // No está en Leetify: sin rating (ya no hay valores a mano)
+  assert.equal(lucho.premier, null);
   assert.equal(lucho.enLeetify, false);
   assert.equal(lucho.faceit, null);
+});
+
+test("si Steam no responde y no hay nombre en config.js, se muestra \"Jugador\"", async () => {
+  const { armarRanking } = await cargar();
+  const { fn } = fetchFalso([]);
+  const [j] = (await armarRanking([{ steam: `https://steamcommunity.com/profiles/${ID_JOACO}` }], { fetch: fn })).jugadores;
+  assert.equal(j.nombre, "Jugador");
+  assert.equal(j.steam, `https://steamcommunity.com/profiles/${ID_JOACO}`);
 });
 
 test("sin clave de FACEIT no se consulta FACEIT y se usa el nivel de Leetify", async () => {

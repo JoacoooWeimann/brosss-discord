@@ -152,7 +152,7 @@ function iniciarTextoRotativo() {
 
 function iniciarLuzTarjetas() {
   document.addEventListener("pointermove", (e) => {
-    const tarjeta = e.target.closest(".stat, .juego, .miembro, .reglas li, .panel, .resumen");
+    const tarjeta = e.target.closest(".stat, .juego, .miembro, .reglas li");
     if (!tarjeta) return;
     const rect = tarjeta.getBoundingClientRect();
     // El CSS usa --x y --y como centro del degradé

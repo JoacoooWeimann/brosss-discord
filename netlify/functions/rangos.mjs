@@ -4,7 +4,7 @@
 //  puede usar claves de API sin que nadie las vea.
 //
 //  Para cada jugador de CONFIG.cs2.jugadores consulta:
-//   - Steam   → ID de 64 bits y avatar (perfil público, sin clave)
+//   - Steam   → ID de 64 bits, nombre y avatar (perfil público, sin clave)
 //   - Leetify → CS Rating de Premier (y nivel de FACEIT)
 //   - FACEIT  → nivel y ELO oficiales (solo si hay FACEIT_API_KEY)
 //
@@ -32,7 +32,7 @@ const ESPERA_MAXIMA_MS = 8000;
 
 // ---------- Steam ----------
 
-// El perfil en XML (?xml=1) no pide clave. Leemos solo tres campos.
+// El perfil en XML (?xml=1) no pide clave. Leemos solo lo que usamos.
 // Cortamos antes de <groups>: ahí vienen los avatares de los grupos.
 export function leerPerfilSteam(xml) {
   const perfil = String(xml).split("<groups>")[0];
@@ -41,7 +41,7 @@ export function leerPerfilSteam(xml) {
   const id = campo("steamID64");
   if (!/^7656\d{13}$/.test(id)) return null; // perfil inexistente
   const avatar = campo("avatarFull");
-  return { id, avatar: avatar.startsWith("https://") ? avatar : "" };
+  return { id, nombre: campo("steamID").slice(0, 64), avatar: avatar.startsWith("https://") ? avatar : "" };
 }
 
 async function consultarSteam(link, pedir) {
@@ -111,7 +111,7 @@ async function consultarJugador(jugador, { pedir, claves, errores }) {
   const perfil = parsearLinkSteam(jugador.steam);
   const steam =
     (await intentar(jugador.nombre, "Steam", () => consultarSteam(jugador.steam, pedir), errores)) ??
-    (perfil?.tipo === "profiles" ? { id: perfil.valor, avatar: "" } : null);
+    (perfil?.tipo === "profiles" ? { id: perfil.valor, nombre: "", avatar: "" } : null);
   const [leetify, faceit] = steam
     ? await Promise.all([
         intentar(jugador.nombre, "Leetify", () => consultarLeetify(steam.id, pedir, claves.leetify), errores),
@@ -119,16 +119,15 @@ async function consultarJugador(jugador, { pedir, claves, errores }) {
       ])
     : [null, null];
 
-  // Prioridad: FACEIT oficial > Leetify > valor cargado a mano en config.js
-  const premier = leetify?.premier ?? nivelOk(jugador.premier, 0, 50000);
+  // Sin nombre en config.js se usa el de Steam (y se actualiza solo)
+  // FACEIT: primero la API oficial y, si no hay clave, lo que diga Leetify
   return {
-    nombre: jugador.nombre,
+    nombre: jugador.nombre || steam?.nombre || "Jugador",
     steam: steam ? `${STEAM}/profiles/${steam.id}` : "",
     avatar: steam?.avatar ?? "",
-    premier,
-    premierManual: leetify?.premier == null && premier != null,
+    premier: leetify?.premier ?? null,
     enLeetify: Boolean(leetify),
-    faceit: faceit?.faceit ?? leetify?.faceit ?? nivelOk(jugador.faceit, 1, 10),
+    faceit: faceit?.faceit ?? leetify?.faceit ?? null,
     faceitElo: faceit?.faceitElo ?? leetify?.faceitElo ?? null,
     faceitUrl: faceit?.faceitUrl ?? "",
   };

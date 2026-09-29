@@ -294,15 +294,15 @@ En el navegador `module` no existe y ese bloque se saltea. En Node sí existe, y
 
 ## 7. `js/rangos.js`: sección Rangos CS2
 
-En `CONFIG.cs2.jugadores` solo va el nombre y el link de Steam de cada jugador. Al abrir la página, `cargarRangos()` pide `/api/rangos` (la función de Netlify, ver abajo) y con eso dibuja todo. Si la función no responde (por ejemplo, abriendo `index.html` sin Netlify), usa los `premier`/`faceit` que haya en config.js y muestra un aviso.
+En `CONFIG.cs2.jugadores` solo va el link de Steam de cada jugador (el `nombre` es opcional: si falta, se usa el de Steam). La sección es una tabla con buscador y filtro por rango.
 
-- **Jugadores sin rating.** `premier` puede ser `null` (no está en Leetify). `tienePremier()` los separa: van al final de la tabla (ordenados por FACEIT), con "—" y borde gris, y no cuentan para el promedio, el podio ni el gráfico. Si falta alguno, aparece la nota que invita a entrar a leetify.com.
+- **Actualización automática.** `actualizarRangos()` pide `/api/rangos` (la función de Netlify, ver abajo) al abrir la página y después cada 15 minutos con `setInterval`. Cada vez reemplaza la variable `ranking` y vuelve a aplicar los filtros, así no se pierde lo que la persona escribió en el buscador. Los filtros (opciones y eventos) se arman **una sola vez** en `iniciarFiltros()`, para que no se dupliquen en cada actualización.
+- **Si la función falla.** Si ya había una tabla, se queda y aparece un aviso. Si es la primera carga, la tabla no se muestra: no hay datos inventados ni cargados a mano.
+- **Jugadores sin rating.** `premier` puede ser `null` (no está en Leetify). `tienePremier()` los separa: van al final de la tabla (ordenados por FACEIT), con "—" y borde gris. Si falta alguno, aparece la nota que invita a entrar a leetify.com.
 - **Datos de afuera = datos no confiables.** El avatar solo se usa si empieza con `https://` y el link de FACEIT solo si es de `www.faceit.com`. Los nombres se muestran con `textContent`, como siempre.
 
 - **Rango por color.** `RANGOS_PREMIER` es la tabla de rangos del juego (gris < 5.000, celeste, azul, violeta, rosa, rojo, dorado ≥ 30.000). `rangoPremier()` la recorre de mayor a menor y devuelve el primer rango cuyo mínimo alcanza.
 - **Posición fija.** El ranking se ordena una sola vez y cada jugador guarda su `posicion`. Al filtrar, el primero sigue siendo el "#1" aunque sea el único resultado.
-- **Gráfico de distribución.** Barras horizontales hechas con HTML y CSS (sin librerías). Tienen **un solo color**, porque es una sola serie de datos (cantidad de jugadores). El color de cada rango aparece como una muestrita al lado del nombre, así el color no compite con el largo de la barra. El número va en la punta de cada barra.
-- **Tooltip accesible.** Cada barra tiene `tabIndex = 0` (se puede enfocar con Tab) y `aria-label` con el detalle, así un lector de pantalla lee lo mismo que aparece al pasar el mouse.
 - **Filtros.** `filtrarJugadores()` normaliza el texto con `normalize("NFD")` y saca las tildes con una expresión regular, así "joaco" encuentra "Joacó".
 - **Seguridad.** El link de Steam solo se crea si empieza con `https://`. Si no, alguien podría cargar `javascript:alert(1)` y se ejecutaría al hacer clic.
 - **Tabla en el celular.** Se ocultan las columnas FACEIT y Steam, y el contenedor tiene `overflow-x: auto`. Si la tabla no entra, scrollea ella y no toda la página.
@@ -315,7 +315,7 @@ Es código que corre **en el servidor de Netlify**, no en el navegador. Hace fal
 
 Para cada jugador:
 
-1. **Steam** (`steamcommunity.com/.../?xml=1`): el perfil en XML no pide clave. De ahí sale el ID de 64 bits (así un link `/id/DJLucheo` se convierte en `/profiles/7656...`) y el avatar. `leerPerfilSteam()` corta el XML antes de `<groups>`, porque ahí vienen los avatares de los grupos del usuario.
+1. **Steam** (`steamcommunity.com/.../?xml=1`): el perfil en XML no pide clave. De ahí sale el ID de 64 bits (así un link `/id/DJLucheo` se convierte en `/profiles/7656...`), el nombre y el avatar. `leerPerfilSteam()` corta el XML antes de `<groups>`, porque ahí vienen los avatares de los grupos del usuario.
 2. **Leetify** (`/v3/profile?steam64_id=`): el CS Rating de Premier. Valve no lo publica en ninguna API, pero Leetify lo guarda de los jugadores que se registraron. Si responde 404, el jugador nunca entró: no es un error.
 3. **FACEIT** (`/data/v4/players?game=cs2&game_player_id=`): nivel y ELO. Solo si existe la variable `FACEIT_API_KEY`. La clave va en la cabecera `Authorization`, nunca en la URL (las URLs quedan en logs).
 

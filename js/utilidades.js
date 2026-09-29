@@ -103,14 +103,6 @@ function filtrarJugadores(jugadores, { texto = "", rango = "" } = {}) {
   );
 }
 
-// Cuántos jugadores hay en cada rango (para el gráfico)
-function distribucionPorRango(jugadores) {
-  return RANGOS_PREMIER.map((r) => ({
-    ...r,
-    cantidad: jugadores.filter((j) => tienePremier(j) && rangoPremier(j.premier) === r).length,
-  }));
-}
-
 // Formato de rating como en el juego: 18450 → "18,450"
 const formatearRating = (n) => n.toLocaleString("en-US");
 
@@ -217,7 +209,6 @@ if (typeof module !== "undefined") {
     tienePremier,
     ordenarPorRating,
     filtrarJugadores,
-    distribucionPorRango,
     formatearRating,
     parsearLinkSteam,
     URL_API_RANGOS,

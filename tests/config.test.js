@@ -50,13 +50,16 @@ test("cada miembro del staff tiene un color válido", () => {
   });
 });
 
-test("cada jugador de CS2 tiene nombre y un link de Steam válido (sin repetir)", () => {
+test("cada jugador de CS2 tiene un link de Steam válido (sin repetir)", () => {
   const nombres = new Set();
   const perfiles = new Set();
   for (const j of CONFIG.cs2.jugadores) {
-    assert.ok(typeof j.nombre === "string" && j.nombre.trim(), "falta el nombre");
-    assert.ok(!nombres.has(j.nombre), `nombre repetido: ${j.nombre}`);
-    nombres.add(j.nombre);
+    // El nombre es opcional (si falta, se usa el de Steam), pero no vacío ni repetido
+    if (j.nombre !== undefined) {
+      assert.ok(typeof j.nombre === "string" && j.nombre.trim(), `nombre vacío en ${j.steam}: sacalo o completalo`);
+      assert.ok(!nombres.has(j.nombre), `nombre repetido: ${j.nombre}`);
+      nombres.add(j.nombre);
+    }
 
     const perfil = parsearLinkSteam(j.steam);
     assert.ok(perfil, `link de Steam inválido para ${j.nombre}: usá steamcommunity.com/profiles/7656... o /id/nombre`);
@@ -64,9 +67,9 @@ test("cada jugador de CS2 tiene nombre y un link de Steam válido (sin repetir)"
     assert.ok(!perfiles.has(clave), `Steam repetido: ${j.steam}`);
     perfiles.add(clave);
 
-    // Valores a mano (opcionales)
-    if (j.premier != null) assert.ok(Number.isInteger(j.premier) && j.premier >= 0 && j.premier <= 50000, `rating inválido para ${j.nombre}: ${j.premier}`);
-    if (j.faceit != null) assert.ok(Number.isInteger(j.faceit) && j.faceit >= 1 && j.faceit <= 10, `nivel FACEIT inválido para ${j.nombre}`);
+    // Los rangos ya no se cargan a mano: los trae /api/rangos
+    assert.equal(j.premier, undefined, `${j.steam}: el Premier se busca solo, no lo cargues a mano`);
+    assert.equal(j.faceit, undefined, `${j.steam}: el FACEIT se busca solo, no lo cargues a mano`);
   }
 });
 
