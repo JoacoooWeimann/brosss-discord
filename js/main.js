@@ -309,11 +309,15 @@ function mostrarConectados(widget) {
 
   widget.members.slice(0, MAXIMO).forEach((m) => {
     const li = crear("li");
-    const img = crear("img");
-    img.src = m.avatar_url;
-    img.alt = "";
-    img.loading = "lazy";
-    li.append(img, crear("span", "", m.username));
+    // Solo https: la URL viene de la API de Discord
+    if (typeof m.avatar_url === "string" && m.avatar_url.startsWith("https://")) {
+      const img = crear("img");
+      img.src = m.avatar_url;
+      img.alt = "";
+      img.loading = "lazy";
+      li.append(img);
+    }
+    li.append(crear("span", "", m.username));
     lista.append(li);
   });
 

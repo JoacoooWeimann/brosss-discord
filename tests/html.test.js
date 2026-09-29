@@ -106,6 +106,13 @@ test("netlify.toml define la CSP y permite todo lo que usa la página", () => {
   }
 });
 
+test("netlify.toml bloquea los archivos de desarrollo", () => {
+  const bloqueados = [...leer("netlify.toml").matchAll(/from = "([^"]+)"\s+to = "\/404\.html"\s+status = 404\s+force = true/g)].map((m) => m[1]);
+  for (const ruta of ["/.git/*", "/.gitignore", "/netlify.toml", "/README.md", "/DOCS.md", "/tests/*", "/package.json"]) {
+    assert.ok(bloqueados.includes(ruta), `${ruta} tiene que devolver 404`);
+  }
+});
+
 test("los scripts no usan dominios externos escritos a mano (van en ORIGENES)", () => {
   // Para que la CSP y el código no se desincronicen, las URLs de APIs
   // e iframes se arman siempre desde ORIGENES en utilidades.js

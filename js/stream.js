@@ -104,7 +104,8 @@ function mostrarListaStreamers(streamers) {
 
     // Avatar: foto de Kick o la inicial
     const avatar = crear("span", "streamer__avatar", s.nombre.charAt(0).toUpperCase());
-    if (s.avatar) {
+    // Solo https: la URL viene de la API de Kick
+    if (s.avatar && s.avatar.startsWith("https://")) {
       const img = crear("img");
       img.src = s.avatar;
       img.alt = "";

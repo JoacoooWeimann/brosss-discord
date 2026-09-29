@@ -50,6 +50,33 @@
     Cache-Control = "public, max-age=604800"
 
 # Los tests y archivos de desarrollo no tienen que ser públicos
+# (Netlify publica toda la carpeta: sin esto se podrían descargar,
+# incluido el historial completo de git)
+[[redirects]]
+  from = "/.git/*"
+  to = "/404.html"
+  status = 404
+  force = true
+[[redirects]]
+  from = "/.gitignore"
+  to = "/404.html"
+  status = 404
+  force = true
+[[redirects]]
+  from = "/netlify.toml"
+  to = "/404.html"
+  status = 404
+  force = true
+[[redirects]]
+  from = "/README.md"
+  to = "/404.html"
+  status = 404
+  force = true
+[[redirects]]
+  from = "/DOCS.md"
+  to = "/404.html"
+  status = 404
+  force = true
 [[redirects]]
   from = "/tests/*"
   to = "/404.html"

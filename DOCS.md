@@ -349,7 +349,7 @@ El segundo bug no aparecía como scroll horizontal porque `body` tiene `overflow
   - `nosniff`: el navegador no "adivina" tipos de archivo.
   - `Referrer-Policy`: no filtra la URL completa a otros sitios.
 - **Caché**: HTML, CSS y JS usan `no-cache`. El navegador los guarda, pero pregunta si cambiaron, así cada deploy se ve al instante. Las imágenes se guardan una semana.
-- **Redirects**: `/tests/*` y `package.json` devuelven 404, porque no tienen que ser públicos.
+- **Redirects**: `/tests/*`, `package.json`, `netlify.toml`, `README.md`, `DOCS.md`, `.gitignore` y `/.git/*` devuelven 404. Netlify publica toda la carpeta, y sin estas reglas cualquiera podría descargarlos (incluido el historial completo de git). Un test verifica que estén todas.
 
 ### `404.html`
 
