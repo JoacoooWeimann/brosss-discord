@@ -57,10 +57,10 @@ const CONFIG = {
   ],
 
   faq: [
-    { pregunta: "¿Cómo consigo roles?", respuesta: "En el canal #roles reaccionás con el emoji del juego o tema que te interese y el bot te asigna el rol." },
+    { pregunta: "¿Cómo consigo roles?", respuesta: "Los roles se asignan por actividad en el Discord: participá en los chats y en los canales de voz." },
     { pregunta: "¿Cómo reporto a alguien?", respuesta: "Mandale un mensaje privado a cualquier miembro del staff con capturas de lo que pasó." },
     { pregunta: "¿Puedo postularme para staff?", respuesta: "Sí. Cuando abrimos postulaciones lo anunciamos en #anuncios con un formulario." },
-    { pregunta: "¿Hay eventos?", respuesta: "Todos los viernes hacemos torneos o noches de juegos. Mirá #eventos para el cronograma." },
+    { pregunta: "¿Hay eventos?", respuesta: "Todos los sábados hacemos torneos o noches de juegos. Mirá #eventos para el cronograma." },
   ],
 
   //  - nombre:  cómo aparece en el servidor.
