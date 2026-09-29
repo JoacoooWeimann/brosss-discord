@@ -6,7 +6,7 @@ const assert = require("node:assert/strict");
 const { crearNavegador, esperar, fetchCon } = require("./helpers/navegador-falso.js");
 
 const STREAMERS = [
-  { nombre: "Joacooo", rol: "Fundador", kick: "joacooo" },
+  { nombre: "Joacooo", rol: "Owner", kick: "joacooo" },
   { nombre: "Mod 2", rol: "Moderador", kick: "canal-del-mod" },
 ];
 
