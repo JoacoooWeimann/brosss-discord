@@ -167,6 +167,15 @@ test("si un video se está reproduciendo y se gira, se corta", async () => {
   assert.equal(oficial.children[0].tagName, "BUTTON", "vuelve a la fachada y deja de sonar");
 });
 
+test("si el clip tiene portada, se ve de fondo en la tarjeta", async () => {
+  const nav = await abrir({ clips: [{ ...CLIPS[0], portada: "img/clips/x.webp" }, CLIPS[1]] });
+  const [conPortada, sinPortada] = nav.elemento("clips-lista").children.map((li) => li.children[0]);
+  const img = conPortada.querySelector("img");
+  assert.equal(img.src, "img/clips/x.webp");
+  assert.equal(img.alt, "", "es decorativa: el título ya describe el clip");
+  assert.equal(sinPortada.querySelector("img"), null);
+});
+
 test("con un solo clip no hay flechas ni puntitos", async () => {
   const nav = await abrir({ clips: CLIPS.slice(0, 1) });
   assert.equal(nav.elemento("clips-anterior").hidden, true);

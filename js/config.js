@@ -92,13 +92,15 @@ const CONFIG = {
   // Pegá el link COMPLETO de cada video (abrilo en la compu y copiá la
   // URL). Los links cortos tipo vm.tiktok.com no sirven.
   // "titulo" es opcional: es el texto que se ve antes de reproducir.
+  // "portada" es opcional: imagen de vista previa guardada en img/clips/
+  // (vertical 9:16, .webp). Sin portada se ve un fondo de colores.
   // Pueden ser clips de cualquier cuenta: en cada tarjeta se ve de quién es.
   // Se muestran en un carrusel y el PRIMERO arranca en el medio (el destacado).
   // "usuario" es la cuenta oficial: la del botón "Ver más en TikTok".
   tiktok: {
     usuario: "brosss.clips",
     clips: [
-      { url: "https://www.tiktok.com/@brosss.clips/video/7461024379594345733", titulo: "Se desubicó" },
+      { url: "https://www.tiktok.com/@brosss.clips/video/7461024379594345733", titulo: "Se desubicó", portada: "img/clips/7461024379594345733.webp" },
       // De @awaken_brosss, de más a menos visto
       { url: "https://www.tiktok.com/@awaken_brosss/video/7622815767372860693", titulo: "El grito" },
       { url: "https://www.tiktok.com/@awaken_brosss/video/7646523199303224577", titulo: "El sabio espera" },

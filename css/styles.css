@@ -687,6 +687,28 @@ a { color: inherit; text-decoration: none; }
   font: inherit;
   cursor: pointer;
 }
+/* Portada de fondo + degradé oscuro arriba y abajo para leer el texto */
+.clip__portada {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+}
+.clip__fachada::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.55), transparent 22%, transparent 65%, rgba(0, 0, 0, 0.8));
+  pointer-events: none;
+}
+.clip__marca,
+.clip__play,
+.clip__titulo { z-index: 2; }
+.clip__marca,
+.clip__titulo { text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9); }
 .clip__marca {
   position: absolute;
   top: 16px;
@@ -696,6 +718,7 @@ a { color: inherit; text-decoration: none; }
   color: var(--texto-suave);
 }
 .clip__play {
+  position: relative; /* para que el z-index lo ponga arriba de la portada */
   display: grid;
   place-items: center;
   width: 64px;

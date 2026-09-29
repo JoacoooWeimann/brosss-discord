@@ -95,6 +95,17 @@ function crearFachada(clip, indice) {
   // Arriba se ve de qué cuenta es el clip (puede no ser la oficial)
   fachada.append(crear("span", "clip__marca", "@" + usuarioDeTiktok(url)), play, crear("span", "clip__titulo", titulo));
 
+  // Portada del video (guardada en img/clips/): va de fondo, detrás del texto
+  if (clip.portada) {
+    const img = crear("img", "clip__portada");
+    img.src = clip.portada;
+    img.alt = "";
+    img.loading = "lazy";
+    // Si no carga, queda el fondo de colores de siempre
+    img.addEventListener("error", () => img.remove());
+    fachada.append(img);
+  }
+
   fachada.addEventListener("click", () => {
     if (indice !== clipActual) return irAlClip(indice);
     const iframe = crear("iframe");

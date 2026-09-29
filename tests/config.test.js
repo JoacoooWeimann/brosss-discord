@@ -64,5 +64,9 @@ test("el usuario de TikTok va sin @ y cada clip tiene un link completo", () => {
   assert.match(CONFIG.tiktok.usuario, /^[\w.]{2,24}$/, "poné el usuario sin @");
   for (const clip of CONFIG.tiktok.clips) {
     assert.ok(idDeTiktok(clip.url), `link inválido: ${clip.url}. Usá el link completo (tiktok.com/@usuario/video/...), no el corto`);
+    if (clip.portada) {
+      assert.match(clip.portada, /^img\/clips\//, `la portada de ${clip.url} va en img/clips/`);
+      assert.ok(fs.existsSync(path.join(RAIZ, clip.portada)), `falta la portada ${clip.portada}`);
+    }
   }
 });
