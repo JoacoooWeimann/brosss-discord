@@ -82,6 +82,30 @@ test("si falla una actualización, se mantienen los datos en vivo anteriores", a
   assert.match(nav.elemento("stats-fuente").textContent, /^En vivo/);
 });
 
+test("el staff se arma en pirámide: una fila por rol, en el orden de config.js", () => {
+  const nav = crearNavegador();
+  nav.cargar("js/config.js");
+  nav.contexto.__staff = [
+    { nombre: "A", usuario: "a_1", rol: "Owner", color: "#22e36b", avatar: "img/staff/a.webp" },
+    { nombre: "B", usuario: "", rol: "Owner", color: "#22e36b", avatar: "" },
+    { nombre: "C", usuario: "c", rol: "Mod", color: "#5c9dff", avatar: "" },
+    { nombre: "D", usuario: "d", rol: "Mod", color: "#5c9dff", avatar: "" },
+    { nombre: "E", usuario: "e", rol: "Mod", color: "#5c9dff", avatar: "" },
+  ];
+  nav.evaluar("CONFIG.staff = __staff");
+  nav.cargar("js/utilidades.js", "js/main.js");
+
+  const filas = nav.elemento("staff-lista").children;
+  assert.deepEqual(filas.map((f) => f.children.length), [2, 3]);
+  assert.match(filas[0].className, /staff__fila--principal/);
+  assert.doesNotMatch(filas[1].className, /staff__fila--principal/);
+
+  const [a, b] = filas[0].children;
+  assert.equal(a.children[0].children[0].src, "img/staff/a.webp");
+  assert.equal(a.textContent, "A@a_1Owner");
+  assert.equal(b.textContent, "BBOwner", "sin foto va la inicial y sin usuario no hay @");
+});
+
 // ---------- Rangos ----------
 
 // La celda "Jugador" tiene el avatar (con la inicial) y el nombre

@@ -48,27 +48,17 @@ function cargarContenido() {
     $("reglas-lista").append(li);
   });
 
-  // Staff
+  // Staff: una fila por rol, en el orden de config.js. Con los owners
+  // primero y los mods después queda una pirámide (2 arriba, 3 abajo).
+  const porRol = new Map();
   CONFIG.staff.forEach((persona) => {
-    const tarjeta = crear("article", "miembro revelar");
-    // Variable CSS que usan el borde del avatar y la etiqueta
-    tarjeta.style.setProperty("--color-rol", persona.color);
-
-    const avatar = crear("div", "miembro__avatar");
-    if (persona.avatar) {
-      const img = crear("img");
-      img.src = persona.avatar;
-      img.alt = persona.nombre;
-      avatar.append(img);
-    } else {
-      // Sin foto: mostramos la inicial
-      avatar.textContent = persona.nombre.charAt(0).toUpperCase();
-    }
-
-    tarjeta.append(avatar, crear("h3", "", persona.nombre));
-    if (persona.usuario) tarjeta.append(crear("span", "miembro__usuario", "@" + persona.usuario));
-    tarjeta.append(crear("span", "etiqueta", persona.rol));
-    $("staff-lista").append(tarjeta);
+    if (!porRol.has(persona.rol)) porRol.set(persona.rol, []);
+    porRol.get(persona.rol).push(persona);
+  });
+  [...porRol.values()].forEach((personas, i) => {
+    const fila = crear("div", i === 0 ? "staff__fila staff__fila--principal" : "staff__fila");
+    personas.forEach((persona) => fila.append(crearMiembro(persona)));
+    $("staff-lista").append(fila);
   });
 
   // FAQ: <details> + <summary> ya funcionan como acordeón sin JS
@@ -77,6 +67,30 @@ function cargarContenido() {
     details.append(crear("summary", "", item.pregunta), crear("p", "", item.respuesta));
     $("faq-lista").append(details);
   });
+}
+
+// Tarjeta de un miembro del staff: foto (o inicial), nombre, @usuario y rol
+function crearMiembro(persona) {
+  const tarjeta = crear("article", "miembro revelar");
+  // Variable CSS que usan el borde del avatar y la etiqueta
+  tarjeta.style.setProperty("--color-rol", persona.color);
+
+  const avatar = crear("div", "miembro__avatar");
+  if (persona.avatar) {
+    const img = crear("img");
+    img.src = persona.avatar;
+    img.alt = persona.nombre;
+    img.loading = "lazy";
+    avatar.append(img);
+  } else {
+    // Sin foto: mostramos la inicial
+    avatar.textContent = persona.nombre.charAt(0).toUpperCase();
+  }
+
+  tarjeta.append(avatar, crear("h3", "", persona.nombre));
+  if (persona.usuario) tarjeta.append(crear("span", "miembro__usuario", "@" + persona.usuario));
+  tarjeta.append(crear("span", "etiqueta", persona.rol));
+  return tarjeta;
 }
 
 function ponerLinkInvitacion(url) {

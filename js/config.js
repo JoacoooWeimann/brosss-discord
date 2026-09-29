@@ -63,15 +63,17 @@ const CONFIG = {
     { pregunta: "¿Hay eventos?", respuesta: "Todos los viernes hacemos torneos o noches de juegos. Mirá #eventos para el cronograma." },
   ],
 
+  //  - nombre:  cómo aparece en el servidor.
   //  - usuario: nombre de usuario de Discord, sin @ (se muestra como @usuario).
   //  - color:   cualquier color CSS; se usa para el borde del avatar y la etiqueta del rol.
-  //  - avatar:  foto guardada en img/staff/ (ej: "img/staff/joacooo.png"), o "" para la inicial.
+  //  - avatar:  foto cuadrada en img/staff/ (256×256, .webp), o "" para la inicial.
+  // Se arma una fila por rol, en este orden: owners arriba y mods abajo.
   staff: [
-    { nombre: "Joacooo", usuario: "", rol: "Owner", color: "#22e36b", avatar: "" },
-    { nombre: "lil dober", usuario: "", rol: "Owner", color: "#22e36b", avatar: "" },
-    { nombre: "Lazza", usuario: "", rol: "Mod", color: "#5c9dff", avatar: "" },
-    { nombre: "Lucho", usuario: "", rol: "Mod", color: "#5c9dff", avatar: "" },
-    { nombre: "Kyo", usuario: "", rol: "Mod", color: "#5c9dff", avatar: "" },
+    { nombre: "Joacooo", usuario: "joacooow", rol: "Owner", color: "#22e36b", avatar: "img/staff/joacooow.webp" },
+    { nombre: "1lil_dober", usuario: "matteeooo__", rol: "Owner", color: "#22e36b", avatar: "img/staff/matteeooo__.webp" },
+    { nombre: "Lazza", usuario: "lazzaaa4", rol: "Mod", color: "#5c9dff", avatar: "img/staff/lazzaaa4.webp" },
+    { nombre: "Lucho", usuario: "falsedarjiji_17799", rol: "Mod", color: "#5c9dff", avatar: "img/staff/falsedarjiji_17799.webp" },
+    { nombre: "oyK*", usuario: "1kyoo", rol: "Mod", color: "#5c9dff", avatar: "img/staff/1kyoo.webp" },
   ],
 
   // ---------- Stream (Kick) ----------
