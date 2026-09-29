@@ -115,6 +115,17 @@ function usuarioDeTiktok(url) {
   return idDeTiktok(url) ? /tiktok\.com\/@([\w.-]+)\//.exec(url)[1] : null;
 }
 
+// Dónde va cada clip en el carrusel según cuál está en el medio:
+// "centro", "izquierda", "derecha" o null (no se ve). Es circular:
+// con 7 clips y el 0 en el medio, a la izquierda queda el 6.
+function posicionEnCarrusel(indice, actual, total) {
+  const distancia = (indice - actual + total) % total;
+  if (distancia === 0) return "centro";
+  if (distancia === 1) return "derecha";
+  if (distancia === total - 1) return "izquierda";
+  return null;
+}
+
 const urlPlayerTiktok = (id) => `${ORIGENES.iframes.tiktok}/player/v1/${id}?autoplay=1&rel=0&description=1&music_info=1`;
 const urlPerfilTiktok = (usuario) => `https://www.tiktok.com/@${usuario}`;
 
@@ -134,6 +145,7 @@ if (typeof module !== "undefined") {
     duracionDesde,
     idDeTiktok,
     usuarioDeTiktok,
+    posicionEnCarrusel,
     urlPlayerTiktok,
   };
 }

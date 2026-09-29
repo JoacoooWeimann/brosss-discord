@@ -92,6 +92,89 @@ test("con streamers cargados, la sección y el link se ven", async () => {
   assert.equal(nav.elemento("nav-stream").hidden, false);
 });
 
+// 4 clips de prueba: el primero es de la cuenta oficial
+const CLIPS = [
+  { url: "https://www.tiktok.com/@brosss.clips/video/7400000000000000001", titulo: "Oficial" },
+  { url: "https://www.tiktok.com/@awaken_brosss/video/7400000000000000002", titulo: "Dos" },
+  { url: "https://www.tiktok.com/@awaken_brosss/video/7400000000000000003", titulo: "Tres" },
+  { url: "https://www.tiktok.com/@awaken_brosss/video/7400000000000000004", titulo: "Cuatro" },
+];
+
+// Qué clip hay en cada lugar del carrusel: { izquierda, centro, derecha }
+function lugares(nav) {
+  const lugar = {};
+  nav.elemento("clips-lista").children.forEach((li) => {
+    if (!li.hidden) lugar[li.dataset.posicion] = li.children[0].children[2]?.textContent ?? "(video)";
+  });
+  return lugar;
+}
+
+test("el carrusel arranca con el clip oficial en el medio y muestra 3", async () => {
+  const nav = await abrir({ clips: CLIPS });
+  assert.deepEqual(lugares(nav), { izquierda: "Cuatro", centro: "Oficial", derecha: "Dos" });
+  assert.equal(nav.elemento("clips-lista").children.filter((li) => li.hidden).length, 1, "el 4° queda oculto");
+  assert.equal(nav.elemento("clips-puntos").children[0].getAttribute("aria-current"), "true");
+});
+
+test("las flechas giran el carrusel de forma circular", async () => {
+  const nav = await abrir({ clips: CLIPS });
+  nav.elemento("clips-siguiente").disparar("click");
+  assert.deepEqual(lugares(nav), { izquierda: "Oficial", centro: "Dos", derecha: "Tres" });
+
+  nav.elemento("clips-anterior").disparar("click");
+  nav.elemento("clips-anterior").disparar("click");
+  assert.deepEqual(lugares(nav), { izquierda: "Tres", centro: "Cuatro", derecha: "Oficial" });
+
+  // El puntito resaltado acompaña
+  const puntos = nav.elemento("clips-puntos").children;
+  assert.equal(puntos[3].getAttribute("aria-current"), "true");
+  assert.equal(puntos[0].getAttribute("aria-current"), null);
+});
+
+test("los puntitos, el teclado y deslizar con el dedo también giran", async () => {
+  const nav = await abrir({ clips: CLIPS });
+  nav.elemento("clips-puntos").children[2].disparar("click");
+  assert.equal(lugares(nav).centro, "Tres");
+
+  nav.elemento("clips-carrusel").disparar("keydown", { key: "ArrowRight" });
+  assert.equal(lugares(nav).centro, "Cuatro");
+
+  const lista = nav.elemento("clips-lista");
+  lista.disparar("pointerdown", { pointerType: "touch", clientX: 300 });
+  lista.disparar("pointerup", { pointerType: "touch", clientX: 150 }); // hacia la izquierda: siguiente
+  assert.equal(lugares(nav).centro, "Oficial");
+
+  lista.disparar("pointerdown", { pointerType: "touch", clientX: 150 });
+  lista.disparar("pointerup", { pointerType: "touch", clientX: 170 }); // muy corto: no gira
+  assert.equal(lugares(nav).centro, "Oficial");
+});
+
+test("tocar un clip de costado lo trae al medio en vez de reproducirlo", async () => {
+  const nav = await abrir({ clips: CLIPS });
+  const dos = nav.elemento("clips-lista").children[1];
+  dos.children[0].disparar("click");
+  assert.equal(lugares(nav).centro, "Dos");
+  assert.equal(dos.children[0].tagName, "BUTTON", "todavía no carga el video");
+});
+
+test("si un video se está reproduciendo y se gira, se corta", async () => {
+  const nav = await abrir({ clips: CLIPS });
+  const oficial = nav.elemento("clips-lista").children[0];
+  oficial.children[0].disparar("click");
+  assert.equal(oficial.children[0].tagName, "IFRAME");
+
+  nav.elemento("clips-siguiente").disparar("click");
+  assert.equal(oficial.children[0].tagName, "BUTTON", "vuelve a la fachada y deja de sonar");
+});
+
+test("con un solo clip no hay flechas ni puntitos", async () => {
+  const nav = await abrir({ clips: CLIPS.slice(0, 1) });
+  assert.equal(nav.elemento("clips-anterior").hidden, true);
+  assert.equal(nav.elemento("clips-siguiente").hidden, true);
+  assert.equal(nav.elemento("clips-puntos").hidden, true);
+  assert.deepEqual(lugares(nav), { centro: "Oficial" });
+});
+
 test("los clips se muestran como fachada y cargan el video al hacer clic", async () => {
   const nav = await abrir({
     clips: [
@@ -128,6 +211,7 @@ test("cada clip muestra su cuenta, pero Ver más lleva siempre a la oficial", as
 test("sin clips, muestra el mensaje y el link al perfil", async () => {
   const nav = await abrir({ clips: [] });
   assert.equal(nav.elemento("clips-vacio").hidden, false);
+  assert.equal(nav.elemento("clips-carrusel").hidden, true);
   const usuario = nav.evaluar("CONFIG.tiktok.usuario");
   assert.equal(nav.elemento("clips-perfil").href, `https://www.tiktok.com/@${usuario}`);
   assert.equal(nav.elemento("clips-usuario").textContent, "@" + usuario);

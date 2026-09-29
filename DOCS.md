@@ -307,7 +307,15 @@ Cada 60 segundos se consulta `https://kick.com/api/v2/channels/{canal}` para cad
 
 **`aspect-ratio: 16 / 9`** mantiene la proporción del video a cualquier ancho, sin trucos de `padding-top: 56.25%`.
 
-## 8. `js/clips.js`: Clips de TikTok (patrón *facade*)
+## 8. `js/clips.js`: Clips de TikTok (carrusel + patrón *facade*)
+
+**El carrusel.** Se ven 3 clips: el del medio es el destacado y los de los costados se ven más chicos y apagados. Arranca con el primero de `config.js` (el de la cuenta oficial) en el medio. Gira con las flechas, los puntitos, las flechas del teclado o deslizando con el dedo, y es **circular**: después del último viene el primero.
+
+- `posicionEnCarrusel(indice, actual, total)` (en utilidades.js) decide dónde va cada clip: `"centro"`, `"izquierda"`, `"derecha"` o `null` (no se ve). Es una cuenta con módulo: `(indice - actual + total) % total` da 0 para el del medio, 1 para el de la derecha y `total - 1` para el de la izquierda.
+- Cada `<li>` guarda su lugar en `data-posicion`, y el CSS lo ubica en la columna 1, 2 o 3 de una grilla. Así, girar no mueve nodos del DOM: solo cambia un atributo y las transiciones de CSS hacen la animación.
+- Tocar un clip de costado lo trae al medio en vez de reproducirlo.
+- Si un video se está reproduciendo y el carrusel gira, se vuelve a poner la fachada. Si no, el `<iframe>` oculto seguiría sonando.
+- En el celular se ve solo el del medio.
 
 Cada reproductor de TikTok carga más de 1 MB de scripts. Con 6 clips, la página tardaría muchísimo. Por eso cada clip empieza como un **botón liviano** (la "fachada") con un fondo en los colores de TikTok. Al hacer clic, `replaceWith()` lo cambia por el `<iframe>` real con `autoplay=1`. YouTube y otros sitios grandes usan esta misma técnica.
 

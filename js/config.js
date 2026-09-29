@@ -93,13 +93,19 @@ const CONFIG = {
   // URL). Los links cortos tipo vm.tiktok.com no sirven.
   // "titulo" es opcional: es el texto que se ve antes de reproducir.
   // Pueden ser clips de cualquier cuenta: en cada tarjeta se ve de quién es.
+  // Se muestran en un carrusel y el PRIMERO arranca en el medio (el destacado).
   // "usuario" es la cuenta oficial: la del botón "Ver más en TikTok".
   tiktok: {
     usuario: "brosss.clips",
     clips: [
       { url: "https://www.tiktok.com/@brosss.clips/video/7461024379594345733", titulo: "Se desubicó" },
-      // El más visto de @awaken_brosss
+      // De @awaken_brosss, de más a menos visto
       { url: "https://www.tiktok.com/@awaken_brosss/video/7622815767372860693", titulo: "El grito" },
+      { url: "https://www.tiktok.com/@awaken_brosss/video/7646523199303224577", titulo: "El sabio espera" },
+      { url: "https://www.tiktok.com/@awaken_brosss/video/7627003985282501908", titulo: "Humos chidos" },
+      { url: "https://www.tiktok.com/@awaken_brosss/video/7646469761756318992", titulo: "Lo di todo" },
+      { url: "https://www.tiktok.com/@awaken_brosss/video/7649191563439967504", titulo: "¿Elias?" },
+      { url: "https://www.tiktok.com/@awaken_brosss/video/7645116848089910545", titulo: "Se re janea el gordo" },
     ],
   },
 };

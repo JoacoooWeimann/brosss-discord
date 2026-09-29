@@ -167,8 +167,14 @@
     <section id="clips" class="seccion seccion--alt">
       <div class="contenedor">
         <h2 class="seccion__titulo">Clips de <span class="acento">TikTok</span></h2>
-        <p class="seccion__sub">Los mejores momentos de la comunidad. Tocá un clip para verlo.</p>
-        <ul class="clips" id="clips-lista"></ul>
+        <p class="seccion__sub">Los mejores momentos de la comunidad. Girá el carrusel y tocá el clip del medio para verlo.</p>
+        <!-- Carrusel: 3 clips a la vista, el del medio es el destacado -->
+        <div class="carrusel" id="clips-carrusel" role="region" aria-roledescription="carrusel" aria-label="Clips de TikTok">
+          <button class="carrusel__flecha" id="clips-anterior" type="button" aria-label="Clip anterior"><svg class="icono" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button>
+          <ul class="clips" id="clips-lista"></ul>
+          <button class="carrusel__flecha" id="clips-siguiente" type="button" aria-label="Clip siguiente"><svg class="icono" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
+        </div>
+        <div class="carrusel__puntos" id="clips-puntos"></div>
         <p class="seccion__sub" id="clips-vacio" hidden>Todavía no hay clips cargados. Mientras tanto, mirá la cuenta.</p>
         <div class="clips__mas">
           <a class="btn btn--borde" id="clips-perfil" href="#" target="_blank" rel="noopener noreferrer">Ver más en TikTok <span id="clips-usuario"></span></a>

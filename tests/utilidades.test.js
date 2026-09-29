@@ -79,6 +79,14 @@ test("duracionDesde arma textos cortos", () => {
   assert.equal(u.duracionDesde(ahora + 60000, ahora), "0 min", "un reloj adelantado no da negativo");
 });
 
+test("posicionEnCarrusel reparte los clips de forma circular", () => {
+  const lugares = (actual, total) => Array.from({ length: total }, (_, i) => u.posicionEnCarrusel(i, actual, total));
+  assert.deepEqual(lugares(0, 5), ["centro", "derecha", null, null, "izquierda"]);
+  assert.deepEqual(lugares(4, 5), ["derecha", null, null, "izquierda", "centro"]);
+  assert.deepEqual(lugares(0, 2), ["centro", "derecha"], "con 2, el otro va a la derecha");
+  assert.deepEqual(lugares(0, 1), ["centro"]);
+});
+
 test("usuarioDeTiktok saca la cuenta del link, solo si el link es válido", () => {
   assert.equal(u.usuarioDeTiktok("https://www.tiktok.com/@awaken_brosss/video/7622815767372860693"), "awaken_brosss");
   assert.equal(u.usuarioDeTiktok("https://www.tiktok.com/@brosss.clips/video/7461024379594345733?lang=es"), "brosss.clips");

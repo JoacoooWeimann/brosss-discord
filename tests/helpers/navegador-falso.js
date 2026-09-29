@@ -85,6 +85,9 @@ class ElementoFalso {
   getAttribute(k) {
     return this.atributos[k] ?? null;
   }
+  removeAttribute(k) {
+    delete this.atributos[k];
+  }
   addEventListener(tipo, fn) {
     (this.eventos[tipo] ??= []).push(fn);
   }

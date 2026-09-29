@@ -567,21 +567,102 @@ a { color: inherit; text-decoration: none; }
 /* =============================================================
    CLIPS
    ============================================================= */
+/* Carrusel: flecha | 3 clips | flecha */
+.carrusel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+.carrusel__flecha {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 1px solid var(--borde);
+  background: var(--tarjeta);
+  color: var(--texto);
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s, box-shadow 0.2s;
+}
+.carrusel__flecha:hover,
+.carrusel__flecha:focus-visible {
+  border-color: var(--verde);
+  color: var(--verde);
+  box-shadow: var(--brillo);
+}
+
+/* Tres columnas fijas: cada clip va a la suya según data-posicion.
+   Con 1 o 2 clips, el del medio sigue quedando en el medio. */
 .clips {
   list-style: none;
-  /* Flex y no grid: así con pocos clips (o uno solo) quedan centrados */
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+  display: grid;
+  /* 240px cada uno, pero se achican si la pantalla no alcanza (tablets) */
+  grid-template-columns: repeat(3, minmax(0, 240px));
+  flex: 0 1 760px;
+  min-width: 0;
+  align-items: center;
   gap: 20px;
+  touch-action: pan-y; /* el deslizamiento horizontal lo maneja el carrusel */
 }
 .clip {
-  width: 240px;
+  width: 100%;
   aspect-ratio: 9 / 16; /* formato vertical de TikTok */
   border-radius: var(--radio);
   overflow: hidden;
   border: 1px solid var(--borde);
   background: var(--tarjeta);
+  grid-row: 1;
+  transition: transform 0.35s, opacity 0.35s, border-color 0.35s, box-shadow 0.35s;
+}
+.clip[data-posicion="izquierda"] { grid-column: 1; }
+.clip[data-posicion="centro"] { grid-column: 2; }
+.clip[data-posicion="derecha"] { grid-column: 3; }
+/* Los de los costados, más chicos y apagados: el protagonista es el del medio */
+.clip[data-posicion="izquierda"],
+.clip[data-posicion="derecha"] {
+  transform: scale(0.86);
+  opacity: 0.55;
+}
+.clip[data-posicion="izquierda"]:hover,
+.clip[data-posicion="derecha"]:hover { opacity: 0.85; }
+.clip[data-posicion="centro"] {
+  border-color: var(--verde);
+  box-shadow: 0 0 28px rgba(34, 227, 107, 0.18);
+}
+
+/* Puntitos: uno por clip, el actual resaltado */
+.carrusel__puntos {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 20px;
+}
+.carrusel__punto {
+  width: 28px; /* área de toque cómoda; el punto se dibuja adentro */
+  height: 28px;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+.carrusel__punto::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--borde);
+  transition: background 0.2s, width 0.2s;
+}
+.carrusel__punto:hover::before { background: var(--texto-suave); }
+.carrusel__punto[aria-current="true"]::before {
+  width: 24px;
+  border-radius: 5px;
+  background: var(--verde);
 }
 .clip iframe {
   width: 100%;
@@ -1069,8 +1150,13 @@ a { color: inherit; text-decoration: none; }
   .reglas { grid-template-columns: 1fr; }
   .invitacion__cuerpo { flex-wrap: wrap; }
   .stream__info { flex-direction: column; align-items: stretch; }
-  .clips { gap: 10px; }
-  .clip { width: calc(50% - 5px); } /* 2 por fila */
+  /* En el celular se ve solo el del medio, con las flechas a los costados */
+  .carrusel { gap: 8px; }
+  .carrusel__flecha { width: 40px; height: 40px; }
+  .clips { grid-template-columns: minmax(0, 240px); }
+  .clip[data-posicion="izquierda"],
+  .clip[data-posicion="derecha"] { display: none; }
+  .clip[data-posicion="centro"] { grid-column: 1; }
   .staff, .staff__fila { gap: 12px; }
   .staff__fila > .miembro { flex-basis: calc(50% - 6px); padding: 24px 10px; } /* 2 por fila, el 3° centrado */
   .clip__play { width: 48px; height: 48px; }
