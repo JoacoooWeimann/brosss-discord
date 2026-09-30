@@ -12,9 +12,16 @@
 // ¿La persona pidió menos animaciones en su sistema operativo?
 const menosMovimiento = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+// Los efectos que siguen al puntero son solo para mouse. En el celular
+// el dedo no "pasa por encima": toca y desliza para scrollear, y el
+// navegador no siempre avisa cuando se levanta, así que el efecto
+// quedaba trabado donde estuvo el dedo.
+const esMouse = (e) => e.pointerType === "mouse";
+
 // ---------- 1. Partículas del hero ----------
 // Puntos que flotan y se unen con líneas cuando están cerca, como una
-// red. Las que están cerca del mouse también se conectan con él.
+// red. Las que están cerca del mouse también se conectan con él (en
+// el celular solo flotan, sin interacción).
 
 function iniciarParticulas() {
   const canvas = $("particulas");
@@ -27,6 +34,7 @@ function iniciarParticulas() {
   let animando = false;
 
   function redimensionar() {
+    const anchoAnterior = ancho;
     // devicePixelRatio: en pantallas retina el canvas necesita más
     // píxeles reales para no verse borroso
     const dpr = window.devicePixelRatio || 1;
@@ -35,6 +43,12 @@ function iniciarParticulas() {
     canvas.width = ancho * dpr;
     canvas.height = alto * dpr;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    // En el celular, al scrollear aparece o se esconde la barra de
+    // direcciones y el navegador avisa "resize" aunque solo cambió el
+    // alto. Si el ancho es el mismo, mantenemos las partículas: si no,
+    // se regeneraban todas y el fondo "saltaba".
+    if (ancho === anchoAnterior && puntos.length > 0) return;
 
     // Cantidad de puntos según el tamaño de la pantalla (máx. 90)
     const cantidad = Math.min(Math.floor((ancho * alto) / 14000), 90);
@@ -60,11 +74,18 @@ function iniciarParticulas() {
     ctx.clearRect(0, 0, ancho, alto);
 
     puntos.forEach((p, i) => {
-      // Mover y rebotar en los bordes
+      // Mover y rebotar en los bordes. Si la pantalla se achicó y quedó
+      // afuera, la volvemos a meter (si no, rebotaría en el lugar)
       p.x += p.vx;
       p.y += p.vy;
-      if (p.x < 0 || p.x > ancho) p.vx *= -1;
-      if (p.y < 0 || p.y > alto) p.vy *= -1;
+      if (p.x < 0 || p.x > ancho) {
+        p.vx *= -1;
+        p.x = Math.min(Math.max(p.x, 0), ancho);
+      }
+      if (p.y < 0 || p.y > alto) {
+        p.vy *= -1;
+        p.y = Math.min(Math.max(p.y, 0), alto);
+      }
 
       ctx.fillStyle = "rgba(34, 227, 107, 0.8)";
       ctx.beginPath();
@@ -95,6 +116,7 @@ function iniciarParticulas() {
   const frenar = () => (animando = false);
 
   hero.addEventListener("pointermove", (e) => {
+    if (!esMouse(e)) return;
     const rect = canvas.getBoundingClientRect();
     mouse.x = e.clientX - rect.left;
     mouse.y = e.clientY - rect.top;
@@ -169,6 +191,7 @@ function iniciarLogo3D() {
   const hero = $("inicio");
 
   hero.addEventListener("pointermove", (e) => {
+    if (!esMouse(e)) return;
     // Posición del mouse de -0.5 a 0.5 respecto al centro de la pantalla
     const x = e.clientX / window.innerWidth - 0.5;
     const y = e.clientY / window.innerHeight - 0.5;

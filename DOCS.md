@@ -247,6 +247,11 @@ Detalles de rendimiento:
 - La cantidad de puntos depende del tamaño de la pantalla (menos en celular).
 - `devicePixelRatio` hace que se vea nítido en pantallas retina.
 
+En el celular:
+
+- **Solo mouse.** La interacción (y la inclinación 3D del logo) solo reacciona si `e.pointerType === "mouse"`. Con el dedo, el navegador no siempre avisa cuando se levanta (el toque se convierte en scroll), y el efecto quedaba trabado donde estuvo el dedo.
+- **La barra de direcciones.** Al scrollear, aparece o se esconde y el navegador dispara `resize` aunque solo cambió el alto. Si el ancho es el mismo, se mantienen las partículas; si no, se regeneraban todas y el fondo "saltaba". Si alguna queda afuera porque la pantalla se achicó, el rebote la vuelve a meter.
+
 ### Texto que se escribe solo
 
 Una función `paso()` que se llama a sí misma con `setTimeout`, agregando o sacando una letra con `slice(0, letras)`. El operador `%` (resto) hace que después del último juego vuelva al primero.
