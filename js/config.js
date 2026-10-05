@@ -84,7 +84,7 @@ const CONFIG = {
   // Mientras la lista esté vacía, la sección Stream no se muestra.
   streamers: [
     { nombre: "Joacooo", rol: "Owner", kick: "joacooow" },
-    { nombre: "iBranDou", rol: "Moderador", kick: "ibrandou" },
+    { nombre: "iBranDou", rol: "Streamer", kick: "ibrandou" },
     { nombre: "Kyo", rol: "Moderador", kick: "ikyooo" },
   ],
 
