@@ -86,6 +86,7 @@ const CONFIG = {
     { nombre: "Joacooo", rol: "Owner", kick: "joacooow" },
     { nombre: "iBranDou", rol: "Streamer", kick: "ibrandou" },
     { nombre: "Kyo", rol: "Moderador", kick: "ikyooo" },
+    { nombre: "ELAYAS", rol: "Streamer", kick: "elayas-00" },
   ],
 
   // ---------- Clips de TikTok ----------
