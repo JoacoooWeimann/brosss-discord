@@ -53,6 +53,8 @@ const ORIGENES = {
   api: {
     discord: "https://discord.com",
     kick: "https://kick.com",
+    // Los clips que guarda el bot (repo público JoacoooWeimann/brosss-bot)
+    github: "https://raw.githubusercontent.com",
   },
   // Se muestran en un <iframe> → van en frame-src
   iframes: {
@@ -115,6 +117,49 @@ function usuarioDeTiktok(url) {
   return idDeTiktok(url) ? /tiktok\.com\/@([\w.-]+)\//.exec(url)[1] : null;
 }
 
+// ---------- Clips automáticos (los guarda el bot) ----------
+// El bot de Discord revisa la cuenta de TikTok cada 15 minutos y deja
+// la lista de videos en datos/clips.json de su repo, con una portada
+// por video en datos/portadas/{id}.webp. La página la lee al abrirse.
+
+const BASE_CLIPS_BOT = `${ORIGENES.api.github}/JoacoooWeimann/brosss-bot/main/datos`;
+const URL_CLIPS_BOT = `${BASE_CLIPS_BOT}/clips.json`;
+
+// Pasa la lista del bot al formato de config.js ({ url, titulo, portada }).
+// Viene de afuera: se valida cada dato y las URLs se arman acá, nunca
+// se usan las que trae el archivo.
+function clipsDesdeBot(datos) {
+  const usuario = datos?.usuario;
+  if (!/^[\w.]{2,24}$/.test(usuario ?? "") || !Array.isArray(datos.clips)) return [];
+  return datos.clips
+    .filter((c) => /^\d{15,20}$/.test(c?.id ?? ""))
+    .map((c) => {
+      const titulo = typeof c.titulo === "string" ? c.titulo.trim().slice(0, 100) : "";
+      return {
+        url: `https://www.tiktok.com/@${usuario}/video/${c.id}`,
+        // "tomatomatoma" → "Tomatomatoma"
+        titulo: titulo.charAt(0).toUpperCase() + titulo.slice(1),
+        portada: c.portada === true ? `${BASE_CLIPS_BOT}/portadas/${c.id}.webp` : "",
+      };
+    });
+}
+
+// Primero los automáticos (del más nuevo al más viejo), después los de
+// config.js que no estén repetidos. Si un clip está en los dos lados,
+// va en el lugar del automático pero con el título y la portada de
+// config.js (lo cargado a mano tiene prioridad).
+function juntarClips(automaticos, manuales) {
+  const manualPorId = new Map(manuales.map((c) => [idDeTiktok(c.url), c]));
+  const usados = new Set();
+  const lista = automaticos.map((auto) => {
+    const id = idDeTiktok(auto.url);
+    usados.add(id);
+    const manual = manualPorId.get(id);
+    return manual ? { ...auto, ...manual } : auto;
+  });
+  return [...lista, ...manuales.filter((c) => !usados.has(idDeTiktok(c.url)))];
+}
+
 // Dónde va cada clip en el carrusel según cuál está en el medio:
 // "centro", "izquierda", "derecha" o null (no se ve). Es circular:
 // con 7 clips y el 0 en el medio, a la izquierda queda el 6.
@@ -146,6 +191,9 @@ if (typeof module !== "undefined") {
     idDeTiktok,
     usuarioDeTiktok,
     posicionEnCarrusel,
+    URL_CLIPS_BOT,
+    clipsDesdeBot,
+    juntarClips,
     urlPlayerTiktok,
   };
 }

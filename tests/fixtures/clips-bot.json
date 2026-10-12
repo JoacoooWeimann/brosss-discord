@@ -1,0 +1,23 @@
+{
+  "usuario": "brosss.clips",
+  "clips": [
+    {
+      "id": "7694526057206041863",
+      "fecha": 1791521454000,
+      "portada": true,
+      "titulo": "tomatomatoma"
+    },
+    {
+      "id": "7461024379594345733",
+      "fecha": 1737155108000,
+      "portada": true,
+      "titulo": "se desubicó"
+    },
+    {
+      "id": "no-es-un-id",
+      "fecha": 1,
+      "portada": true,
+      "titulo": "<img src=x onerror=alert(1)>"
+    }
+  ]
+}

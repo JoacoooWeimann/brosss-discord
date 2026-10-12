@@ -87,6 +87,38 @@ test("posicionEnCarrusel reparte los clips de forma circular", () => {
   assert.deepEqual(lugares(0, 1), ["centro"]);
 });
 
+test("clipsDesdeBot valida los datos y arma las URLs (no usa las que vienen)", () => {
+  const clips = u.clipsDesdeBot({
+    usuario: "brosss.clips",
+    clips: [
+      { id: "7694526057206041863", titulo: " tomatomatoma ", portada: true, url: "https://evil.com" },
+      { id: "7461024379594345733", titulo: 42, portada: "https://evil.com/x.png" },
+      { id: "javascript:alert(1)", titulo: "x" },
+    ],
+  });
+  assert.deepEqual(clips, [
+    {
+      url: "https://www.tiktok.com/@brosss.clips/video/7694526057206041863",
+      titulo: "Tomatomatoma",
+      portada: "https://raw.githubusercontent.com/JoacoooWeimann/brosss-bot/main/datos/portadas/7694526057206041863.webp",
+    },
+    { url: "https://www.tiktok.com/@brosss.clips/video/7461024379594345733", titulo: "", portada: "" },
+  ]);
+  assert.deepEqual(u.clipsDesdeBot({ usuario: "../../evil", clips: [{ id: "7694526057206041863" }] }), []);
+  assert.deepEqual(u.clipsDesdeBot(null), []);
+  assert.deepEqual(u.clipsDesdeBot({ usuario: "brosss.clips", clips: "no" }), []);
+});
+
+test("juntarClips pone primero los automáticos y no repite los de config.js", () => {
+  const auto = (id, titulo) => ({ url: `https://www.tiktok.com/@brosss.clips/video/${id}`, titulo, portada: "" });
+  const manual = { url: "https://www.tiktok.com/@brosss.clips/video/7461024379594345733", titulo: "A mano", portada: "img/clips/a.webp" };
+  const awaken = { url: "https://www.tiktok.com/@awaken_brosss/video/7622815767372860693", titulo: "El grito" };
+  const lista = u.juntarClips([auto("7694526057206041863", "Nuevo"), auto("7461024379594345733", "auto")], [manual, awaken]);
+  assert.deepEqual(lista.map((c) => c.titulo), ["Nuevo", "A mano", "El grito"]);
+  assert.equal(lista[1].portada, "img/clips/a.webp");
+  assert.deepEqual(u.juntarClips([], [awaken]), [awaken]);
+});
+
 test("usuarioDeTiktok saca la cuenta del link, solo si el link es válido", () => {
   assert.equal(u.usuarioDeTiktok("https://www.tiktok.com/@awaken_brosss/video/7622815767372860693"), "awaken_brosss");
   assert.equal(u.usuarioDeTiktok("https://www.tiktok.com/@brosss.clips/video/7461024379594345733?lang=es"), "brosss.clips");

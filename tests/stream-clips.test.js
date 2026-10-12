@@ -176,6 +176,36 @@ test("si el clip tiene portada, se ve de fondo en la tarjeta", async () => {
   assert.equal(sinPortada.querySelector("img"), null);
 });
 
+test("los clips del bot van primero, con el más nuevo de la cuenta oficial en el medio", async () => {
+  const nav = await abrir({
+    rutas: { "brosss-bot/main/datos/clips.json": "clips-bot.json" },
+    clips: [
+      // Ya está en la lista del bot: no se repite y gana lo cargado a mano
+      { url: "https://www.tiktok.com/@brosss.clips/video/7461024379594345733", titulo: "Se desubicó", portada: "img/clips/x.webp" },
+      { url: "https://www.tiktok.com/@awaken_brosss/video/7622815767372860693", titulo: "El grito" },
+    ],
+  });
+  const items = nav.elemento("clips-lista").children;
+  assert.deepEqual(
+    items.map((li) => li.children[0].children[2].textContent),
+    ["Tomatomatoma", "Se desubicó", "El grito"],
+    "el ID inválido del bot se descarta"
+  );
+  assert.equal(lugares(nav).centro, "Tomatomatoma");
+  // La portada del bot se arma con su ID, desde el repo del bot
+  assert.equal(
+    items[0].children[0].querySelector("img").src,
+    "https://raw.githubusercontent.com/JoacoooWeimann/brosss-bot/main/datos/portadas/7694526057206041863.webp"
+  );
+  assert.equal(items[1].children[0].querySelector("img").src, "img/clips/x.webp");
+});
+
+test("si la lista del bot no responde, quedan los clips de config.js", async () => {
+  const nav = await abrir({ rutas: {}, clips: CLIPS });
+  assert.equal(nav.elemento("clips-lista").children.length, CLIPS.length);
+  assert.equal(lugares(nav).centro, "Oficial");
+});
+
 test("con un solo clip no hay flechas ni puntitos", async () => {
   const nav = await abrir({ clips: CLIPS.slice(0, 1) });
   assert.equal(nav.elemento("clips-anterior").hidden, true);

@@ -90,13 +90,19 @@ const CONFIG = {
   ],
 
   // ---------- Clips de TikTok ----------
+  // Los videos de la cuenta oficial se suman SOLOS: el bot de Discord
+  // (repo brosss-bot) los guarda con su portada y la página los lee al
+  // abrirse. Van primero, con el más nuevo en el medio del carrusel.
+  // Acá van los que quieras agregar a mano (por ejemplo de otras
+  // cuentas). Si uno también está en la lista del bot, no se repite y
+  // se usan el título y la portada de acá.
+  //
   // Pegá el link COMPLETO de cada video (abrilo en la compu y copiá la
   // URL). Los links cortos tipo vm.tiktok.com no sirven.
   // "titulo" es opcional: es el texto que se ve antes de reproducir.
   // "portada" es opcional: imagen de vista previa guardada en img/clips/
   // (vertical 9:16, .webp). Sin portada se ve un fondo de colores.
   // Pueden ser clips de cualquier cuenta: en cada tarjeta se ve de quién es.
-  // Se muestran en un carrusel y el PRIMERO arranca en el medio (el destacado).
   // "usuario" es la cuenta oficial: la del botón "Ver más en TikTok".
   tiktok: {
     usuario: "brosss.clips",

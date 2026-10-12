@@ -143,6 +143,7 @@ function crearNavegador({ fetch, almacenamiento = {} } = {}) {
       disconnect() {}
     },
     Intl,
+    AbortSignal,
     Date,
     Math,
     JSON,

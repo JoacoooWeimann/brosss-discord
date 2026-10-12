@@ -314,7 +314,14 @@ Cada 60 segundos se consulta `https://kick.com/api/v2/channels/{canal}` para cad
 
 ## 8. `js/clips.js`: Clips de TikTok (carrusel + patrón *facade*)
 
-**El carrusel.** Se ven 3 clips: el del medio es el destacado y los de los costados se ven más chicos y apagados. Arranca con el primero de `config.js` (el de la cuenta oficial) en el medio. Gira con las flechas, los puntitos, las flechas del teclado o deslizando con el dedo, y es **circular**: después del último viene el primero.
+**Clips automáticos.** Los videos de @brosss.clips llegan solos. El bot de Discord (repo `brosss-bot`) ya revisa la cuenta cada 15 minutos, y además guarda la lista en `datos/clips.json` de su repo, con la portada de cada video en `datos/portadas/`. Al abrir la página, `pedirClipsBot()` la lee desde `raw.githubusercontent.com`, que permite pedidos desde otras páginas (CORS) y la cachea 5 minutos. Así, un clip nuevo aparece sin volver a publicar la web.
+
+- **Datos de afuera.** `clipsDesdeBot()` valida el usuario y cada ID, y arma ella misma las URLs del video y de la portada. Nunca usa una URL que venga en el archivo.
+- **Junto con los de config.js.** `juntarClips()` pone primero los automáticos (del más nuevo al más viejo) y después los cargados a mano, sin repetir. Si un clip está en los dos lados, se usan el título y la portada de `config.js`.
+- **Si GitHub no responde** (o tarda más de 5 segundos), quedan solo los de `config.js`.
+- `raw.githubusercontent.com` está en `ORIGENES.api` y en el `connect-src` de la CSP.
+
+**El carrusel.** Se ven 3 clips: el del medio es el destacado y los de los costados se ven más chicos y apagados. Arranca con el más nuevo de la cuenta oficial en el medio. Gira con las flechas, los puntitos, las flechas del teclado o deslizando con el dedo, y es **circular**: después del último viene el primero.
 
 - `posicionEnCarrusel(indice, actual, total)` (en utilidades.js) decide dónde va cada clip: `"centro"`, `"izquierda"`, `"derecha"` o `null` (no se ve). Es una cuenta con módulo: `(indice - actual + total) % total` da 0 para el del medio, 1 para el de la derecha y `total - 1` para el de la izquierda.
 - Cada `<li>` guarda su lugar en `data-posicion`, y el CSS lo ubica en la columna 1, 2 o 3 de una grilla. Así, girar no mueve nodos del DOM: solo cambia un atributo y las transiciones de CSS hacen la animación.

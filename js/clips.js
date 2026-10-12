@@ -1,7 +1,12 @@
 // =============================================================
 //  CLIPS.JS
-//  Sección "Clips": carrusel de videos de TikTok cargados en
-//  config.js. Se ven 3 a la vez: el del medio es el destacado y
+//  Sección "Clips": carrusel de videos de TikTok. Los de la cuenta
+//  oficial llegan solos: el bot los guarda en su repo y acá se leen
+//  al abrir la página (ver clipsDesdeBot en utilidades.js). Después
+//  van los cargados a mano en config.js. Si la lista del bot no
+//  responde, quedan solo los de config.js.
+//
+//  Se ven 3 a la vez: el del medio es el destacado y
 //  los de los costados asoman. Las flechas, los puntitos, el
 //  teclado o deslizar con el dedo lo hacen girar (es circular).
 //
@@ -13,11 +18,25 @@
 
 // Índice del clip que está en el medio
 let clipActual = 0;
-// Cada clip con su <li>, en el orden de config.js
+// Cada clip con su <li>, en el orden del carrusel
 let clipsCarrusel = [];
 
-function iniciarClips() {
-  const { usuario, clips } = CONFIG.tiktok;
+// Los clips que guardó el bot. Si falla (o tarda más de 5 s), lista vacía
+async function pedirClipsBot() {
+  try {
+    const res = await fetch(URL_CLIPS_BOT, { signal: AbortSignal.timeout(5000) });
+    if (!res.ok) throw new Error("respondió " + res.status);
+    return clipsDesdeBot(await res.json());
+  } catch (error) {
+    console.warn("Clips del bot:", error.message);
+    return [];
+  }
+}
+
+async function iniciarClips() {
+  const { usuario } = CONFIG.tiktok;
+  // El más nuevo de la cuenta oficial arranca en el medio
+  const clips = juntarClips(await pedirClipsBot(), CONFIG.tiktok.clips);
   const perfil = $("clips-perfil");
   perfil.href = urlPerfilTiktok(usuario);
   $("clips-usuario").textContent = "@" + usuario;
@@ -79,7 +98,7 @@ function iniciarClips() {
   $("clips-carrusel").classList.add("revelar");
   observador.observe($("clips-carrusel"));
 
-  // Arranca con el primero de config.js en el medio: el de la cuenta oficial
+  // Arranca con el primero en el medio: el más nuevo de la cuenta oficial
   irAlClip(0);
 }
 
